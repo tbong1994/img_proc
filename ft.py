@@ -7,29 +7,30 @@ from scipy import misc
 ##load image
 #img = cv2.imread("file") --> loads image as an array.
 
-img_Arr = cv2.imread("blackwidow.jpg")
+img_Arr = cv2.imread("blackwidow.jpg")#load image
+img_Arr = cv2.cvtColor(img_Arr, cv2.COLOR_RGB2GRAY) #convert img to grayscale
 
 def showImage(img):
 	cv2.imshow('image',img)
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
-	
-img_Arr = cv2.cvtColor(img_Arr, cv2.COLOR_RGB2GRAY) #convert img to grayscale
+#showImage(img_Arr)
+gaussian_filter = np.matrix([[1,2,1],[2,4,2],[1,2,1]]) #gaussian filter matrix
 
-print img_Arr
-gaussian_filter = np.matrix([[1,2,1],[2,4,2],[1,2,1]])
+rows = len(img_Arr) #480 px
+columns = len(img_Arr[0]) #320 px
+
+#darkening the image
+def darken(img_Arr):
+	for i in range(rows):
+		for j in range(columns):
+			val = img_Arr[i][j] / 4
+			img_Arr[i][j] = val
+
 showImage(img_Arr)
 
-rows = len(img_Arr) #480
-columns = len(img_Arr[0]) #320
-
-#print "row: %d\tcolum: %d"%(rows,columns)
-
-#blurring the image
-for i in range(rows):
-	for j in range(columns):
-		val = img_Arr[i][j] / 9
-		img_Arr[i][j] = val
+print "a"
+darken(img_Arr)
 
 showImage(img_Arr)
 #result = np.dot(img_Arr,gaussian_filter)
