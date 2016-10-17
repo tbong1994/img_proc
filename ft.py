@@ -2,9 +2,11 @@
 import cv2
 import numpy as np, sys
 import scipy
+import PIL
 from scipy import misc 
+from scipy.ndimage.filters import gaussian_filter
 
-gaussian_result = []
+
 ##load image
 #img = cv2.imread("file") --> loads image as an array.
 
@@ -16,17 +18,14 @@ def showImage(img):
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 #showImage(img_Arr)
-gaussian_filter = np.matrix([[1/16,2/16,1/16],[2/16,4/16,2/16],[1/16,2/16,1/16]]) #gaussian filter matrix
+gaussian_filter = np.array([[1.0,2.0,1.0],[2.0,4.0,2.0],[1.0,2.0,1.0]], dtype = np.float) #gaussian filter matrix
 
-rows = len(img_Arr) #480 px
-columns = len(img_Arr[0]) #320 px
+print gaussian_filter
 
-#initialize 2d array.
-for i in range(rows):
-	gaussian_result.append([])
-	for j in range(columns):
-		gaussian_result[i].append(1)
-		
+#rows = len(img_Arr) #480 px
+#columns = len(img_Arr[0]) #320 px
+#gaussian_result = np.ones(shape = (rows,columns),dtype = np.float)
+
 #darkening the image
 def darken(img_Arr):
 	for i in range(rows):
@@ -36,15 +35,15 @@ def darken(img_Arr):
 
 #showImage(img_Arr)
 #darken(img_Arr)
-showImage(img_Arr)
+#showImage(img_Arr)
 #result = np.dot(img_Arr,gaussian_filter)
 
-def downSize(img_Arr):
-	print img_Arr
+#downSize will return the result array(downsized array).
+def downSize(img_A):
 	
 	#downsize by 1/4 because 1/2 in row and 1/2 in column
-	result = img_Arr[::2,::2] 
-	
+	result = img_A[::2,::2] 
+	res = np.uint8(result)
 	#result = np.ones(shape = (rows/2+1,columns/2+1),dtype=np.int)
 	#np_i =0
 	#for i in range(rows):
@@ -56,23 +55,30 @@ def downSize(img_Arr):
 	#	np_i +=1
 	#print result
 	
-	showImage(result)
-	print result
+	showImage(res)
+	return res
 
-downSize(img_Arr)
-
-def gaussianPyr(img_Arr,gf,result):
+#gaussianBlur will return the result array
+def gaussianBlur(img_A,gf):
+	#blurred = gaussian_filter(img_Arr, sigma=7)
+	#showImage(blurred)
+	result = img_A.astype(float)
+	rows = len(img_A)
+	columns = len(img_A[0])
 	for i in range(rows):
 		for j in range(columns):
 			if(i==0 or j ==0 or i == rows-1 or j == columns -1):
-				result[i][j] = 0
+				result[i][j] = float(0)
 			else:
 				#multiply original image x kernel
-				val = img_Arr[i-1][j-1]*gf[0][0] + img_Arr[i][j-1]*gf[1][0] + img_Arr[i+1][j-1]*gf[2][0] + img_Arr[i-1][j]*gf[0][1] +img_Arr[i][j]*gf[1][1] + img_Arr[i+1][j]*gf[2][1] + img_Arr[i-1][j+1]*gf[0][2] + img_Arr[i][j+1]*gf[1][2] + img_Arr[i+1][j+1]*gf[2][2]
-				result[i][j] = val
-#gaussianPyr(img_Arr,gaussian_filter,gaussian_result)
+				val = img_A[i-1][j-1]*gf[0][0] + img_A[i][j-1]*gf[1][0] + img_A[i+1][j-1]*gf[2][0] + img_A[i-1][j]*gf[0][1] + img_A[i][j]*gf[1][1] + img_A[i+1][j]*gf[2][1] + img_A[i-1][j+1]*gf[0][2] + img_A[i][j+1]*gf[1][2] + img_A[i+1][j+1]*gf[2][2]
+				result[i][j] = float(val / 16.0)
+	result *= 255.0/result.max()
+	res = np.uint8(result)
+	showImage(res)
+	return res
 
-##gaussian operation..apply the kernel for each pixel(element) in the image's matrix
-##then you use the dot product of the cell and then the sum of those multiplications
-##will be the result for that index, add the result to the output array.
-##laplacian is the difference between the gaussian of n and n+1
+gaussianBlur(downSize(gaussianBlur(downSize(gaussianBlur(img_Arr,gaussian_filter)),gaussian_filter)),gaussian_filter)
+#gaussianBlur(gaussian_result,gaussian_filter,gaussian_result)
+#gaussianBlur(gaussian_result,gaussian_filter,gaussian_result)
+
