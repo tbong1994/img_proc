@@ -16,7 +16,7 @@ def showImage(img):
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 #showImage(img_Arr)
-gaussian_filter = np.matrix([[1,2,1],[2,4,2],[1,2,1]]) #gaussian filter matrix
+gaussian_filter = np.matrix([[1/16,2/16,1/16],[2/16,4/16,2/16],[1/16,2/16,1/16]]) #gaussian filter matrix
 
 rows = len(img_Arr) #480 px
 columns = len(img_Arr[0]) #320 px
@@ -25,7 +25,7 @@ columns = len(img_Arr[0]) #320 px
 for i in range(rows):
 	gaussian_result.append([])
 	for j in range(columns):
-		gaussian_result[i].append(0)
+		gaussian_result[i].append(1)
 		
 #darkening the image
 def darken(img_Arr):
@@ -37,22 +37,25 @@ def darken(img_Arr):
 #showImage(img_Arr)
 #darken(img_Arr)
 showImage(img_Arr)
-print img_Arr
 #result = np.dot(img_Arr,gaussian_filter)
 
 def downSize(img_Arr):
-	result = np.empty(shape = (rows/2,columns/2))
-	result.astype(int)
-	for i in range(rows):
-		np_i = 0
-		if(i%2 ==0):
-			for j in range(columns):
-				if(j%2 ==0):
-					np_j = 0
-					result[np_i][np_j] = img_Arr[i][j]
-					np_j+=1#ONLY INCREASE J WHEN NEW ITEM IS INSERTED
-					#print result[np_i][np_j]
-			np_i +=1#ONLY INCREASE I WHEN NEW ITEM IS INSERTED
+	print img_Arr
+	
+	#downsize by 1/4 because 1/2 in row and 1/2 in column
+	result = img_Arr[::2,::2] 
+	
+	#result = np.ones(shape = (rows/2+1,columns/2+1),dtype=np.int)
+	#np_i =0
+	#for i in range(rows):
+	#	if(i%2==0):
+	#		np_j=0
+	#		if(j%2==0):
+	#			result[np_i][np_j] = img_Arr[i][j]
+	#			np_j +=1
+	#	np_i +=1
+	#print result
+	
 	showImage(result)
 	print result
 
@@ -65,8 +68,7 @@ def gaussianPyr(img_Arr,gf,result):
 				result[i][j] = 0
 			else:
 				#multiply original image x kernel
-				val = img_Arr[i-1][j-1]*gf[0][0] + img_Arr[i][j-1]*gf[1][0] + img_Arr[i+1][j-1]*gf[2][0] + img_Arr[i-1][j]*gf[0][1] +img_Arr[i][j]*gf[1][1] + img_Arr[i+1][j]*gf[2][1] + img_Arr[i-1][j+1]*gf[0][2] + img_Arr[i][j+1]*gf[1][2] + img_Arr[i+1][j+1]*gf[2][2]  
-				val = float(val/9)
+				val = img_Arr[i-1][j-1]*gf[0][0] + img_Arr[i][j-1]*gf[1][0] + img_Arr[i+1][j-1]*gf[2][0] + img_Arr[i-1][j]*gf[0][1] +img_Arr[i][j]*gf[1][1] + img_Arr[i+1][j]*gf[2][1] + img_Arr[i-1][j+1]*gf[0][2] + img_Arr[i][j+1]*gf[1][2] + img_Arr[i+1][j+1]*gf[2][2]
 				result[i][j] = val
 #gaussianPyr(img_Arr,gaussian_filter,gaussian_result)
 
