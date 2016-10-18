@@ -31,16 +31,16 @@ def downSize(img_A):
 	columns = len(img_A[0])
 	result = np.ones(shape = (rows/2,columns/2),dtype=np.int)
 	np_i =0
-	for i in range(rows-1):
+	for i in range(rows):
 		if(i%2==0):
 			np_j=0
-			for j in range(columns-1):
+			for j in range(columns):
 				if(j%2==0):
 					result[np_i][np_j] = img_A[i][j]
 					np_j +=1
 			np_i +=1
 	res = np.uint8(result)
-	#showImage(res)
+	showImage(res)
 	return res
 	
 def enlargeSize(img_A):
@@ -66,7 +66,7 @@ def enlargeSize(img_A):
 		if(i%2 ==0 and i != 0):
 			np_i +=1
 	res = np.uint8(result)
-	#showImage(res)
+	showImage(res)
 	return res
 #gaussianBlur will return the result array
 def gaussianBlur(img_A,gf):
@@ -89,7 +89,7 @@ def gaussianBlur(img_A,gf):
 	return res
 
 #subtract the G1 with G1'(blurred/enlarged image).
-def laPlacian(original, enlarged):
+def laPlacian(original, enlarged): #try averaging out the extra row with adjacent cells instead of having them all 1
 	rows_O = len(original)
 	columns_O = len(original[0])
 	rows_E = len(enlarged)
@@ -139,42 +139,55 @@ def inv_Laplacian(original, enlarged):
 	res = np.uint8(result)
 	showImage(res)
 	return res
+def blur():	
+	g1 = gaussianBlur(img_Arr,gaussian_filter)
+	g2 = downSize(gaussianBlur(g1,gaussian_filter))
+	g3 = downSize(gaussianBlur(g2,gaussian_filter))
+	g4 = downSize(gaussianBlur(g3,gaussian_filter))
+	g5 = downSize(gaussianBlur(g4,gaussian_filter))
+	g6 = downSize(gaussianBlur(g5,gaussian_filter))
 
-g1 = gaussianBlur(img_Arr,gaussian_filter)
-g2 = downSize(gaussianBlur(g1,gaussian_filter))
-g3 = downSize(gaussianBlur(g2,gaussian_filter))
-g4 = downSize(gaussianBlur(g3,gaussian_filter))
-g5 = downSize(gaussianBlur(g4,gaussian_filter))
-g6 = downSize(gaussianBlur(g5,gaussian_filter))
+def pyramid():
+	#pyramid #1
+	g1_prime = enlargeSize(g2)
+	l1 = laPlacian(g1,g1_prime)
+	#pyramid #2
+	g2_prime = enlargeSize(g3)
+	l2 = laPlacian(g2,g2_prime)
+	#pyramid #3
+	g3_prime = enlargeSize(g4)
+	l3 = laPlacian(g3,g3_prime)
+	#pyramid #4
+	g4_prime = enlargeSize(g5)
+	l4 = laPlacian(g4,g4_prime)
+	#pyramid #5
+	g5_prime = enlargeSize(g6)
+	l5 = laPlacian(g5,g5_prime)
 
-#pyramid #1
-g1_prime = enlargeSize(g2)
-l1 = laPlacian(g1,g1_prime)
-#pyramid #2
-g2_prime = enlargeSize(g3)
-l2 = laPlacian(g2,g2_prime)
-#pyramid #3
-g3_prime = enlargeSize(g4)
-l3 = laPlacian(g3,g3_prime)
-#pyramid #4
-g4_prime = enlargeSize(g5)
-l4 = laPlacian(g4,g4_prime)
-#pyramid #5
-g5_prime = enlargeSize(g6)
-l5 = laPlacian(g5,g5_prime)
+def inverse():
+	rev_l5 = enlargeSize(l5)
+	rev_l4 = inv_Laplacian(l4,rev_l5)
+	#inverse pyramid 2
+	rev_l4 = enlargeSize(l4)
+	rev_l3 = inv_Laplacian(l3,rev_l4)
+	#inverse pyramid 3
+	rev_l3 = enlargeSize(l3)
+	rev_l2 = inv_Laplacian(l2,rev_l3)
+	#inverse pyramid 4
+	rev_l2 = enlargeSize(l2)
+	rev_l1 = inv_Laplacian(l1,rev_l2)
 
-#inverse pyramid 1
-rev_l5 = enlargeSize(l5)
-rev_l4 = inv_Laplacian(l4,rev_l5)
-#inverse pyramid 2
-rev_l4 = enlargeSize(l4)
-rev_l3 = inv_Laplacian(l3,rev_l4)
-#inverse pyramid 3
-rev_l3 = enlargeSize(l3)
-rev_l2 = inv_Laplacian(l2,rev_l3)
-#inverse pyramid 4
-rev_l2 = enlargeSize(l2)
-rev_l1 = inv_Laplacian(l1,rev_l2)
+print img_Arr
+G1 = downSize(img_Arr)
+G2 = downSize(G1)
+G3 = downSize(G2)
+#G4 = downSize(G3)
+
+E1 = enlargeSize(G4)
+E2 = enlargeSize(E1)
+#E3 = enlargeSize(E2)
+E1 = enlargeSize(E2)
+print E1
 #g2 = gaussianBlur(res, gaussian_filter)#G2
 #downSize()
 #g2_enlarge = enlargeSize()
