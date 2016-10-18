@@ -33,7 +33,7 @@ def FT(img_A):
 	res = np.uint8(result_Image)
 	showImage(res)
 	return res
-
+	
 def FT_Operation(img_A_Copy, ft_i, ft_j):
 	rows = len(img_A_Copy)
 	columns = len(img_A_Copy[0])
@@ -46,14 +46,38 @@ def FT_Operation(img_A_Copy, ft_i, ft_j):
 	return result
 
 def inverseFT(img_A):
-	rows = len(img_A)
-	columns = len(img_A[0])
+	copy_Image = np.copy(img_A)
+	rows = len(copy_Image)
+	columns = len(copy_Image[0])
+	result_Image = copy_Image.astype(float)
 	for i in range(rows):
 		for j in range(columns):
-			y = cmath.phase(2*(math.pi)*1j*(float(i*i/rows) + float(j*j/columns)))
-			y_res = math.sqrt(y.real*y.real + y.imag*y.imag)/math.sqrt(rows*columns)
-			result = math.pow(math.e,y_res)
-			img_A[i][j] = result
-	showImage(img_Arr)
-	return img_Arr
+			result_Image [i][j] =  IFT_Operation(result_Image,i,j) 
+	showImage(img_A)
+	return img_A
+
+def IFT_Operation(img_A_Copy, ft_i, ft_j):
+	rows = len(img_A_Copy)
+	columns = len(img_A_Copy[0])
+	for i in range(rows):
+		for j in range(columns):
+			y = 2*(math.pi)*1j*(float(i*ft_i/rows) + float(j*ft_j/columns))
+			magnitude = math.sqrt(y.real*y.real + y.imag*y.imag)
+			result = math.exp(y.real)
+			result = result/(rows*columns)
+	return result
+	
+def computeMSE(original, reconstructed):
+	rows = len(original)
+	columns = len(original[0])
+	
+	res = 0.0
+	for i in range(rows):
+		for j in range(columns):
+			result = math.pow((original[i][j] - reconstructed[0][0]),2)
+			res += result
+	print res
+
 ft = FT(img_Arr)
+ift = inverseFT(ft)
+computeMSE(ft,ift)
