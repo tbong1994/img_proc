@@ -187,4 +187,4 @@ rev_l2 = inv_Laplacian(l2,rev_l3)
 rev_l2 = enlargeSize(l2)
 rev_l1 = inv_Laplacian(l1,rev_l2)
 
-computeMSE(img_Arr, rev_l1)
+computeMSE(img_Arr, rev_l1) #the MSE value.
