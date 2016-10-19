@@ -29,21 +29,23 @@ columns = len(img_Arr[0]) #597 px
 def downSize(img_A):
 	rows = len(img_A)
 	columns = len(img_A[0])
-	result = np.ones(shape = (rows/2,columns/2),dtype=np.int)
-	np_i =0
-	for i in range(rows-1):
-		if(i%2==0):
-			np_j=0
-			for j in range(columns-1):
-				if(j%2==0):
-					result[np_i][np_j] = img_A[i][j]
-					np_j +=1
-			np_i +=1
+	result = img_A[::2,::2]
+	#result = np.ones(shape = (rows/2,columns/2+1),dtype=np.int)
+	#np_i =0
+	#for i in range(rows):
+	#	if(i%2==0):
+	#		np_j=0
+	#		for j in range(columns):
+	#			if(j%2==0):
+	#				result[np_i][np_j] = img_A[i][j]
+	#				np_j +=1
+	#		np_i +=1
 	res = np.uint8(result)
 	#showImage(res)
 	return res
 	
 def enlargeSize(img_A):
+	#result = scipy.misc.imresize(img_A, 200)
 	rows = len(img_A)*2
 	columns = len(img_A[0])*2
 	result = np.ones(shape = (rows,columns),dtype=np.int)
@@ -66,7 +68,7 @@ def enlargeSize(img_A):
 		if(i%2 ==0 and i != 0):
 			np_i +=1
 	res = np.uint8(result)
-	#showImage(res)
+	##showImage(res)
 	return res
 #gaussianBlur will return the result array
 def gaussianBlur(img_A,gf):
@@ -89,26 +91,46 @@ def gaussianBlur(img_A,gf):
 	return res
 
 #subtract the G1 with G1'(blurred/enlarged image).
-def laPlacian(original, enlarged):
+def laPlacian(original, enlarged): #try averaging out the extra row with adjacent cells instead of having them all 1
 	rows_O = len(original)
 	columns_O = len(original[0])
 	rows_E = len(enlarged)
 	columns_E = len(enlarged[0])
-	
+
 	if(rows_O != rows_E):
-		if(rows_O > rows_E):
-			temp = np.ones(shape = (1, columns_E))
-			enlarged = np.concatenate((enlarged, temp),axis =0)
-		else:
-			temp = np.ones(shape = (1, columns_O))
-			enlarged = np.concatenate((enlarged, temp),axis =0)
+		if(rows_O > rows_E): #add a row to enlarged matrix
+			for k in range(rows_O - rows_E):
+				temp = np.ones(shape = (1, columns_E))
+				for i in range(1):
+					last_row_enlarged = rows_E-1
+					for j in range(len(temp[0])):
+						temp[i][j] = enlarged[last_row_enlarged][j]
+				enlarged = np.concatenate((enlarged, temp),axis =0)
+		else: #add a row to original matrix
+			for k in range(rows_E - rows_O):
+				temp = np.ones(shape = (1, columns_O))
+				for i in range(1):
+					last_row_original = rows_O-1
+					for j in range(len(temp[0])):
+						temp[i][j] = enlarged[last_row_original][j]
+				enlarged = np.concatenate((enlarged, temp),axis =0)
 	if(columns_O != columns_E):
-		if(columns_O > columns_E):
-			temp = np.ones(shape = (rows_E, 1))
-			enlarged = np.concatenate((enlarged, temp),axis =1)
-		else:
-			temp = np.ones(shape = (rows_O, 1))
-			enlarged = np.concatenate((enlarged, temp),axis =1)
+		if(columns_O > columns_E): #add a column to enlarged matrix
+			for k in range(columns_O - columns_E):	
+				temp = np.ones(shape = (rows_E, 1))
+				for i in range(len(temp)):
+					last_column_enlarged = columns_E-1
+					for j in range(1):
+						temp[i][j] = enlarged[i][last_column_enlarged]
+				enlarged = np.concatenate((enlarged, temp),axis =1)
+		else: #add a column to original matrix
+			for k in range(columns_E - columns_O):
+				temp = np.ones(shape = (rows_O, 1))
+				for i in range(len(temp)):
+					last_column_original = columns_O-1
+					for j in range(1):
+						temp[i][j] = original[i][last_column_original]
+				original = np.concatenate((original, temp),axis =1)				
 	result = np.subtract(original, enlarged)
 	res = np.uint8(result)
 	showImage(res)
@@ -119,22 +141,44 @@ def inv_Laplacian(original, enlarged):
 	columns_O = len(original[0])
 	rows_E = len(enlarged)
 	columns_E = len(enlarged[0])
-	
 	if(rows_O != rows_E):
-		if(rows_O > rows_E):
-			temp = np.ones(shape = (1, columns_E))
-			enlarged = np.concatenate((enlarged, temp),axis =0)
-		else:
-			temp = np.ones(shape = (1, columns_O))
-			enlarged = np.concatenate((enlarged, temp),axis =0)
+		if(rows_O > rows_E): #add a row to enlarged matrix
+			for k in range(rows_O - rows_E):
+				temp = np.ones(shape = (1, columns_E))
+				for i in range(1):
+					last_row_enlarged = rows_E-1
+					for j in range(len(temp[0])):
+						temp[i][j] = enlarged[last_row_enlarged][j]
+				enlarged = np.concatenate((enlarged, temp),axis =0)
+		else: #add a row to original matrix
+			for k in range(rows_E - rows_O):
+				temp = np.ones(shape = (1, columns_O))
+				for i in range(1):
+					last_row_original = rows_O-1
+					for j in range(len(temp[0])):
+						temp[i][j] = enlarged[last_row_original][j]
+				print len(enlarged)
+				print len(enlarged[0])
+				print len(temp)
+				print len(temp[0])
+				enlarged = np.concatenate((enlarged, temp),axis =0)
 	if(columns_O != columns_E):
-		if(columns_O > columns_E):
-			temp = np.ones(shape = (rows_E, 1))
-			enlarged = np.concatenate((enlarged, temp),axis =1)
-		else:
-			temp = np.ones(shape = (rows_O, 1))
-			enlarged = np.concatenate((enlarged, temp),axis =1)
-
+		if(columns_O > columns_E): #add a column to enlarged matrix
+			for k in range(columns_O - columns_E):	
+				temp = np.ones(shape = (rows_E, 1))
+				for i in range(len(temp)):
+					last_column_enlarged = columns_E-1
+					for j in range(1):
+						temp[i][j] = enlarged[i][last_column_enlarged]
+				enlarged = np.concatenate((enlarged, temp),axis =1)
+		else: #add a column to original matrix
+			for k in range(columns_E - columns_O):
+				temp = np.ones(shape = (rows_O, 1))
+				for i in range(len(temp)):
+					last_column_original = columns_O-1
+					for j in range(1):
+						temp[i][j] = original[i][last_column_original]
+				original = np.concatenate((original, temp),axis =1)
 	result = np.add(original, enlarged)
 	res = np.uint8(result)
 	showImage(res)
@@ -187,4 +231,6 @@ rev_l2 = inv_Laplacian(l2,rev_l3)
 rev_l2 = enlargeSize(l2)
 rev_l1 = inv_Laplacian(l1,rev_l2)
 
-computeMSE(img_Arr, rev_l1) #the MSE value.
+rev_l0 = inv_Laplacian(img_Arr,rev_l1)
+
+computeMSE(img_Arr, rev_l0) #the MSE value.

@@ -1,5 +1,4 @@
 
-
 import cv2
 import numpy as np, sys
 import scipy
@@ -24,7 +23,8 @@ def showImage(img):
 
 def FT(img_A):
 	copy_Image = np.copy(img_A)
-	result_Image = copy_Image.astype(float)
+	result_Image = copy_Image.astype(complex)
+	print result_Image.dtype
 	rows = len(result_Image)
 	columns = len(result_Image[0])
 	for i in range(rows):
@@ -39,9 +39,8 @@ def FT_Operation(img_A_Copy, ft_i, ft_j):
 	columns = len(img_A_Copy[0])
 	for i in range(rows):
 		for j in range(columns):
-			y = -2*(math.pi)*1j*(float(i*ft_i/rows) + float(j*ft_j/columns))
-			magnitude = math.sqrt(y.real*y.real + y.imag*y.imag)
-			result = math.exp(y.real)
+			y = -2j*(math.pi)*(float(i*ft_i/rows) + float(j*ft_j/columns))
+			result = math.e**y
 			result = result / (rows*columns)
 	return result
 
@@ -61,9 +60,8 @@ def IFT_Operation(img_A_Copy, ft_i, ft_j):
 	columns = len(img_A_Copy[0])
 	for i in range(rows):
 		for j in range(columns):
-			y = 2*(math.pi)*1j*(float(i*ft_i/rows) + float(j*ft_j/columns))
-			magnitude = math.sqrt(y.real*y.real + y.imag*y.imag)
-			result = math.exp(y.real)
+			y = 2j*(math.pi)*(float(i*ft_i/rows) + float(j*ft_j/columns))
+			result = math.e**y
 			result = result/(rows*columns)
 	return result
 	
