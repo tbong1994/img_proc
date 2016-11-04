@@ -10,7 +10,7 @@ import math
 
 img_Arr = cv2.imread("avengers.jpg")#load image
 img_Arr = cv2.cvtColor(img_Arr, cv2.COLOR_RGB2GRAY) #convert img to grayscale
-
+print img_Arr
 def showImage(img):
 	cv2.imshow('image',img)
 	cv2.waitKey(0)
