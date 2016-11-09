@@ -43,7 +43,6 @@ def dog(img,mask):
 	return signal.convolve2d(img, mask, boundary='symm', mode='same')
 
 img_after_dog = dog(first_image_arr,dog_mask)
-print img_after_dog
 showImage(img_after_dog)
 
 def log(img,mask):
@@ -62,23 +61,37 @@ def log(img,mask):
 	return signal.convolve2d(img, mask, boundary='symm', mode='same')
 
 img_after_log = log(first_image_arr,dog_mask)
-print img_after_log
 showImage(img_after_log)
-
-zero_crossing(img_after_dog)
-
+print(img_after_log)
 
 ## USE OUTPUT ARRAY AND MAKE A BINARY IMAGE== BLACK OR WHITE WHENEVER ZERO CROSSING OCCURS.
 
 def zero_crossing(img):
-	#look at four neighbors and if the sign changes, it's zero crossing.
-	#if no zero crossing for index i, then fill the i with 0?
-	result = np.uint8(img)
-	print result
-	#for i in range(len(img)):
-		#for j in range(len(img[0])):
+	##look at four neighbors and if the sign changes, it's zero crossing.
+	row = len(img)
+	col = len(img[0])
+	result = np.zeros(shape = (row,col),dtype=np.int)
+	#print result
+	
+	asign = np.sign(img)
+	sz = asign == 0
+	while sz.any():
+	    asign[sz] = np.roll(asign, 1)[sz]
+	    sz = asign == 0
+	signchange = ((np.roll(asign, 1) - asign) != 0).astype(int)
+	signchange[0]=0
+	for i in range(len(signchange)):
+		for j in range(len(signchange[0])):
+			if(signchange[i][j]==1):
+				signchange[i][j]= 255
+			else:
+				signchange[i][j]=0
+	res = np.uint8(signchange)
+	showImage(res)
+	
+	#for i in range(row):
+		#for j in range(col):
 			#if(i==0 and j==0): #only 2 neighbors, right and below
-				
 			#if(i==0 and j==len(img[0])-1): #(0,last) has 2 neighbors, left and below
 				
 			#if(i==len(img)-1 and j==0): #(last,0) only has right and above.
@@ -87,11 +100,11 @@ def zero_crossing(img):
 			
 			#else: #everywhere else.
 				#if(img[i][j]==0):
-					#do nothing.
+					##do nothing.
 				#else if(img[i][j]>0):#current index is positive.
-					#check neighbors if negative from above, clockwise.
+					##check neighbors if negative from above, clockwise.
 					#if(img[i-1][j]<0):
-						#assign some value to output array.
+						##assign some value to output array.
 					#if(img[i][j+1]<0):
 					#if(img[i+1][j]<0):
 					#if(img[i][j-1]<0):
@@ -100,3 +113,5 @@ def zero_crossing(img):
 					#if(img[i][j+1]>0):
 					#if(img[i+1][j]>0):
 					#if(img[i][j-1]>0):
+					
+zero_crossing(img_after_log)
