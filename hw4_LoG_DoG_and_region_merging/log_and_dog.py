@@ -1,8 +1,7 @@
 import cv2
 import numpy as np
-import scipy
+from scipy import signal
 import PIL
-from scipy import misc 
 import math
 
 first_image_arr = cv2.imread('UBCampus.jpg',0) #0 MEANS GRAYSCALE
@@ -25,6 +24,7 @@ def showImage(img):
 	return img
 	#print img.dtype
 	
+##USE CONCOLVE 2D PYTHON LIBRARY FOR FILTERING. OPENCV CONVENTION IS WEIRD, THAT'S WHY U ONLY GET 255'S
 def dog(img,mask):
 	#calculate.
 	#starting index.x = img.x/mask.x 
@@ -39,11 +39,12 @@ def dog(img,mask):
 	
 	result = np.ones(shape = (img_row,img_col),dtype=np.int) #output array
 
-	return cv2.filter2D(img,-1,result,mask) #return result
+	#return cv2.filter2D(img,-1,result,mask) #return result
+	return signal.convolve2d(img, mask, boundary='symm', mode='same')
 
-img_after = dog(first_image_arr,dog_mask)
-print img_after
-showImage(img_after)
+img_after_dog = dog(first_image_arr,dog_mask)
+print img_after_dog
+showImage(img_after_dog)
 
 def log(img,mask):
 	#calculate.
@@ -58,13 +59,22 @@ def log(img,mask):
 	starting_y = img_col/mask_col
 	
 	result = np.ones(shape = (img_row,img_col),dtype=np.int) #output array
+	return signal.convolve2d(img, mask, boundary='symm', mode='same')
+
+img_after_log = log(first_image_arr,dog_mask)
+print img_after_log
+showImage(img_after_log)
+
+zero_crossing(img_after_dog)
 
 
+## USE OUTPUT ARRAY AND MAKE A BINARY IMAGE== BLACK OR WHITE WHENEVER ZERO CROSSING OCCURS.
 
-
-#def zero_crossing(img):
-	##look at four neighbors and if the sign changes, it's zero crossing.
-	##if no zero crossing for index i, then fill the i with 0? 
+def zero_crossing(img):
+	#look at four neighbors and if the sign changes, it's zero crossing.
+	#if no zero crossing for index i, then fill the i with 0?
+	result = np.uint8(img)
+	print result
 	#for i in range(len(img)):
 		#for j in range(len(img[0])):
 			#if(i==0 and j==0): #only 2 neighbors, right and below
@@ -77,11 +87,11 @@ def log(img,mask):
 			
 			#else: #everywhere else.
 				#if(img[i][j]==0):
-					##do nothing.
+					#do nothing.
 				#else if(img[i][j]>0):#current index is positive.
-					##check neighbors if negative from above, clockwise.
+					#check neighbors if negative from above, clockwise.
 					#if(img[i-1][j]<0):
-						##assign some value to output array.
+						#assign some value to output array.
 					#if(img[i][j+1]<0):
 					#if(img[i+1][j]<0):
 					#if(img[i][j-1]<0):
@@ -90,18 +100,3 @@ def log(img,mask):
 					#if(img[i][j+1]>0):
 					#if(img[i+1][j]>0):
 					#if(img[i][j-1]>0):
-
-
-second_image_arr = cv2.imread('MixedVegetables.jpg',0)
-img2_row = len(second_image_arr) #268
-img2_col =  len(second_image_arr[0]) #400
-
-ret, thresh = cv2.threshold(second_image_arr,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-showImage(second_image_arr)
-showImage(thresh)
-
-# noise removal
-kernel = np.ones((3,3),np.uint8)
-opening = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,kernel, iterations = 2)
-
-showImage(opening)
