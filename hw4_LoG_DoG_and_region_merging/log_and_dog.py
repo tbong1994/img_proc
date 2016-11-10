@@ -3,6 +3,7 @@ import numpy as np
 from scipy import signal
 import PIL
 import math
+from matplotlib import pyplot as plt
 
 first_image_arr = cv2.imread('UBCampus.jpg',0) #0 MEANS GRAYSCALE
 
@@ -115,11 +116,28 @@ def zero_crossing(img):
 					#if(img[i+1][j]>0):
 					#if(img[i][j-1]>0):
 def rid_weak_edge(img):
-	hist = cv2.calcHist([img],[0],None,[256],[0,256])
-
-	result = cv2.Canny(img,0,0)
+	
+	row = len(img)
+	col = len(img[0])
+	#hist = cv2.calcHist([img],[0],None,[256],[0,256])
+	
+	first_deriv_mask_x = np.array([[-1/3,0,1/3],[-1/3,0,1/3],[-1/3,0,1/3]], dtype = np.float)
+	first_deriv_mask_y = np.array([[1/3,1/3,1/3],[0,0,0],[-1/3,-1/3,-1/3]], dtype = np.float)
+	
+	temp_x = signal.convolve2d(img, first_deriv_mask_x, boundary='fill', mode='same')
+	temp_y = signal.convolve2d(img, first_deriv_mask_y, boundary='fill', mode='same')
+	
+	result = np.ones(shape = (row,col),dtype=np.int)
+	for i in range(row):
+		for j in range(col):
+			result[i][j] = temp_x[i][j]+temp_y[i][j]
+	#result = cv2.Canny(img,100,150)
+	result = np.uint8(result)
 	showImage(result)
+	print result
 	return result
 	
-first_zc = zero_crossing(img_after_log)
-rid_weak_edge(first_zc)
+first_zc_dog= zero_crossing(img_after_dog)
+rid_Edge_dog = rid_weak_edge(first_image_arr)
+first_zc_log = zero_crossing(img_after_log)
+rid_Edge_log = rid_weak_edge(first_zc_log)
