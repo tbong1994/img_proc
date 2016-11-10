@@ -43,7 +43,7 @@ def dog(img,mask):
 	return signal.convolve2d(img, mask, boundary='symm', mode='same')
 
 img_after_dog = dog(first_image_arr,dog_mask)
-showImage(img_after_dog)
+#showImage(img_after_dog)
 
 def log(img,mask):
 	#calculate.
@@ -61,8 +61,8 @@ def log(img,mask):
 	return signal.convolve2d(img, mask, boundary='symm', mode='same')
 
 img_after_log = log(first_image_arr,dog_mask)
-showImage(img_after_log)
-print(img_after_log)
+#showImage(img_after_log)
+#print(img_after_log)
 
 ## USE OUTPUT ARRAY AND MAKE A BINARY IMAGE== BLACK OR WHITE WHENEVER ZERO CROSSING OCCURS.
 
@@ -88,6 +88,7 @@ def zero_crossing(img):
 				signchange[i][j]=0
 	res = np.uint8(signchange)
 	showImage(res)
+	return res
 	
 	#for i in range(row):
 		#for j in range(col):
@@ -113,5 +114,12 @@ def zero_crossing(img):
 					#if(img[i][j+1]>0):
 					#if(img[i+1][j]>0):
 					#if(img[i][j-1]>0):
-					
-zero_crossing(img_after_log)
+def rid_weak_edge(img):
+	hist = cv2.calcHist([img],[0],None,[256],[0,256])
+
+	result = cv2.Canny(img,0,0)
+	showImage(result)
+	return result
+	
+first_zc = zero_crossing(img_after_log)
+rid_weak_edge(first_zc)
