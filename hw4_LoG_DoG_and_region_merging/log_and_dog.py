@@ -115,7 +115,7 @@ def zero_crossing(img):
 					#if(img[i][j+1]>0):
 					#if(img[i+1][j]>0):
 					#if(img[i][j-1]>0):
-def rid_weak_edge(img):
+def img_deriv(img):
 	
 	row = len(img)
 	col = len(img[0])
@@ -130,14 +130,43 @@ def rid_weak_edge(img):
 	result = np.ones(shape = (row,col),dtype=np.int)
 	for i in range(row):
 		for j in range(col):
-			result[i][j] = temp_x[i][j]+temp_y[i][j]
-	#result = cv2.Canny(img,100,150)
+			result[i][j] = math.sqrt(math.pow(temp_x[i][j],2)+math.pow(temp_y[i][j],2))
 	result = np.uint8(result)
+	showImage(result)
+	#print result
+	return result
+
+def no_weak_edge(img):
+	row = len(img)
+	col = len(img[0])
+	result = np.zeros(shape = (row,col),dtype=np.int)
+	
+	#hist = cv2.calcHist([img],[0],None,[256],[0,256])
+	#print hist
+	#for i in range(row):
+		#for j in range(col):
+			#if(img[i][j]<200):
+				##get rid of outliers
+				#result[i][j]=0
+			#else:
+				#result[i][j]=255
+	#result = np.uint8(result)
 	showImage(result)
 	print result
 	return result
+
+def zero_of_strong(img):
+	row = len(img)
+	col = len(img[0])
+	result = np.zeros(shape = (row,col),dtype=np.int)
+	result = cv2.Canny(img,100,230)
 	
-first_zc_dog= zero_crossing(img_after_dog)
-rid_Edge_dog = rid_weak_edge(first_image_arr)
-first_zc_log = zero_crossing(img_after_log)
-rid_Edge_log = rid_weak_edge(first_zc_log)
+	showImage(result)
+	return result
+zc1 = zero_crossing(img_after_dog)
+zc2 = zero_of_strong(first_image_arr)
+#fd1 = img_deriv(zc1)
+#we1 = no_weak_edge(fd1)
+
+#first_zc_log = zero_crossing(img_after_log)
+#rid_Edge_log = fisrt_deriv(first_zc_log)

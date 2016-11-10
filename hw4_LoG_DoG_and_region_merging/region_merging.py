@@ -16,6 +16,14 @@ def showImage(img):
 def histogram(img):
 	hist = cv2.calcHist([img],[0],None,[256],[0,256])
 	print hist
+
+def crack_edge(img):
+	#output array is twice the size of input.
+	#extra rows/cols should be filled in with the difference of adjacent(4neighbor)cells
+	#from the original input.
+	row = len(img)
+	col = len(img[0])
+	result = np.zeros(shape = (row*2,col*2),dtype=np.int)
 	
 second_image_arr = cv2.imread('MixedVegetables.jpg',0)
 img2_row = len(second_image_arr) #268
