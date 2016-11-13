@@ -7,8 +7,6 @@ from matplotlib import pyplot as plt
 
 first_image_arr = cv2.imread('UBCampus.jpg',0) #0 MEANS GRAYSCALE
 
-
-
 img1_row = len(first_image_arr) #329
 img1_col =  len(first_image_arr[0]) #500
 
@@ -27,24 +25,19 @@ def showImage(img):
 	
 ##USE CONCOLVE 2D PYTHON LIBRARY FOR FILTERING. OPENCV CONVENTION IS WEIRD, THAT'S WHY U ONLY GET 255'S
 def dog(img,mask):
-	#calculate.
-	#starting index.x = img.x/mask.x 
-	#starting index.y = img.y/mask.y
-	img_row = len(img)
-	img_col = len(img[0])
-	mask_row = len(mask)
-	mask_col = len(mask[0])
+	##calculate.
+	#img_row = len(img)
+	#img_col = len(img[0])
+	#mask_row = len(mask)
+	#mask_col = len(mask[0])
 	
-	starting_x = img_row/mask_row
-	starting_y = img_col/mask_col
+	#starting_x = img_row/mask_row
+	#starting_y = img_col/mask_col
 	
-	result = np.ones(shape = (img_row,img_col),dtype=np.int) #output array
+	#result = np.ones(shape = (img_row,img_col),dtype=np.int) #output array
 
 	#return cv2.filter2D(img,-1,result,mask) #return result
 	return signal.convolve2d(img, mask, boundary='symm', mode='same')
-
-img_after_dog = dog(first_image_arr,dog_mask)
-#showImage(img_after_dog)
 
 def log(img,mask):
 	#calculate.
@@ -60,10 +53,6 @@ def log(img,mask):
 	
 	result = np.ones(shape = (img_row,img_col),dtype=np.int) #output array
 	return signal.convolve2d(img, mask, boundary='symm', mode='same')
-
-img_after_log = log(first_image_arr,dog_mask)
-#showImage(img_after_log)
-#print(img_after_log)
 
 ## USE OUTPUT ARRAY AND MAKE A BINARY IMAGE== BLACK OR WHITE WHENEVER ZERO CROSSING OCCURS.
 
@@ -116,16 +105,20 @@ def zero_crossing(img):
 					#if(img[i+1][j]>0):
 					#if(img[i][j-1]>0):
 def img_deriv(img):
+	#sobel derivative
 	
 	row = len(img)
 	col = len(img[0])
 	#hist = cv2.calcHist([img],[0],None,[256],[0,256])
 	
-	first_deriv_mask_x = np.array([[-1/3,0,1/3],[-1/3,0,1/3],[-1/3,0,1/3]], dtype = np.float)
-	first_deriv_mask_y = np.array([[1/3,1/3,1/3],[0,0,0],[-1/3,-1/3,-1/3]], dtype = np.float)
+	first_deriv_mask_x = np.array([[-1,0,1],[-2,0,2],[-1,0,1]], dtype = np.float)
+	first_deriv_mask_y = np.array([[-1,-2,-1],[0,0,0],[1,2,1]], dtype = np.float)
 	
-	temp_x = signal.convolve2d(img, first_deriv_mask_x, boundary='fill', mode='same')
-	temp_y = signal.convolve2d(img, first_deriv_mask_y, boundary='fill', mode='same')
+	#temp_x = signal.convolve2d(img, first_deriv_mask_x, boundary='fill', mode='same')
+	#temp_y = signal.convolve2d(img, first_deriv_mask_y, boundary='fill', mode='same')
+	
+	temp_x = cv2.Sobel(img,cv2.CV_64F,1,0,ksize=3)
+	temp_y = cv2.Sobel(img,cv2.CV_64F,0,1, ksize=3)
 	
 	result = np.ones(shape = (row,col),dtype=np.int)
 	for i in range(row):
@@ -159,14 +152,21 @@ def zero_of_strong(img):
 	row = len(img)
 	col = len(img[0])
 	result = np.zeros(shape = (row,col),dtype=np.int)
-	result = cv2.Canny(img,100,230)
+	result = cv2.Canny(img,50,200)
 	
 	showImage(result)
 	return result
-zc1 = zero_crossing(img_after_dog)
-zc2 = zero_of_strong(first_image_arr)
-#fd1 = img_deriv(zc1)
-#we1 = no_weak_edge(fd1)
 
-#first_zc_log = zero_crossing(img_after_log)
-#rid_Edge_log = fisrt_deriv(first_zc_log)
+#dog operations
+img_after_dog = dog(first_image_arr,dog_mask)
+showImage(img_after_dog)
+zc1 = zero_crossing(img_after_dog)
+
+fd1 = img_deriv(first_image_arr)
+strong_edges = zero_of_strong(fd1)
+
+
+#log operations
+img_after_log = log(first_image_arr,dog_mask)
+showImage(img_after_log)
+zc1_dog = zero_crossing(img_after_log)
