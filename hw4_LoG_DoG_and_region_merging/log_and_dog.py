@@ -165,7 +165,6 @@ zc1 = zero_crossing(img_after_dog)
 fd1 = img_deriv(first_image_arr)
 strong_edges = zero_of_strong(fd1)
 
-
 #log operations
 img_after_log = log(first_image_arr,dog_mask)
 showImage(img_after_log)

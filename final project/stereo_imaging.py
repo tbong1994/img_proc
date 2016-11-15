@@ -8,15 +8,15 @@ import PIL
 import math
 from matplotlib import pyplot as plt
 
-img1 = cv2.imread('view1.png',0)
-img2 = cv2.imread('view3.png',0)
-img3 = cv2.imread('view5.png',0)
+img1 = cv2.imread('view1.png',0) #right most
+img2 = cv2.imread('view3.png',0) #middle
+img3 = cv2.imread('view5.png',0) #left most
 
 row = len(img1)
 col = len(img1[0])
 
-print row #370
-print col #463
+#print row #370
+#print col #463
 
 def showImage(img):
 	cv2.imshow('image',img)
@@ -35,8 +35,7 @@ def showImage(img):
 #All three images have the same height and level. ==> This is RECTIFICATION.
 
 #USE Sum of Squared Differences. ==> for each block to compare, do the following:
-#1)Square each pixel within the block, both image 1 and image 2
-#2)Calcalate difference of each pixel from image1 to image 2
+#1)Calcalate difference of each pixel from image1 to image 2 then square the difference.
 #3)After all the pixels within the block have been calculated, add all pixel values together.
 #4)The added value is the determinant of similarities. The lower the value == the closer it is.
 
@@ -47,8 +46,57 @@ def showImage(img):
 #OR YOU CAN JUST ESTIMATE HOW FAR THE IMAGES HAVE BEEN SHIFTED, AND SET HOW FAR YOU WILL GO TO 
 #SEARCH, BECAUSE THIS COULD SAVE SOME TIME.
 
-def block_matching_3(img):
+def block_matching_3(img1,img2):
 	#3x3 block matching
-	row = len(img)/3
-	col = len(img[0])/3
+	row_img1 = len(img1)/3
+	col_img1 = len(img1[0])/3
+	ssd_values = np.zeros(shape = (row_img1,col_img1),dtype=np.float)#keep track of SSD values at that index.
+	for i in range(row_img1-1):
+		for j in range(col_img1-1):
+			#set block 3x3
+			if(i==0 or j==0): #3x3 only able from (1,1) and ends when (last-1,last-1)
+				continue
+			else:# 3x3 block
+				block = np.array([(img1[i-1][j-1],img1[i-1][j],img1[i-1][j+1]),
+								(img1[i][j-1],img1[i][j],img1[i][j+1]),
+								(img1[i+1][j-1],img1[i+1][j],img1[i+1][j+1])])
+			#calculate SSD here.
+			img2_x = j #index for distance iterations in x directions in 2nd image.
+			ssd_min = 0.0 #min ssd value
+			if(col_img1-j > 10):
+				for k in range(10): #only calcaulte in the x direction.
+					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
+					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
+					+math.pow(block[1][1]-img2[i][k],2) + math.pow(block[1][2]-img2[i][k+1],2)
+					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
+					+math.pow(block[2][2]-img2[i+1][k+1],2)
+					
+					img2_x+=1 #increase index for x direction.
+					
+					#get the lowest SSD value and append that value to ssd values array.
+					if(ssd_min==0.0): #for the initial ssd_min
+						ssd_min = ssd
+					elif(ssd < ssd_min): #replace lowest ssd value.
+						ssd_min = ssd
+			elif(col_img1-j <10):
+				for k in range(col_img1-j-1):
+					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
+					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
+					+math.pow(block[1][1]-img2[i][k],2) + math.pow(block[1][2]-img2[i][k+1],2)
+					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
+					+math.pow(block[2][2]-img2[i+1][k+1],2)
+					
+					img2_x+=1 #increase index for x direction.
+					#get the lowest SSD value and append that value to ssd values array.
+					if(ssd_min==0.0): #for the initial ssd_min
+						ssd_min = ssd
+					elif(ssd < ssd_min): #replace lowest ssd value.
+						ssd_min = ssd
+			ssd_values[i][j] = ssd_min #save ssd value for index (i,j)
+	print ssd_values
+	showImage(np.uint8(ssd_values))
+#img3 should be the input image.
+
+block_matching_3(img3,img1)
+block_matching_3(img3,img2)
 	

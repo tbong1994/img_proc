@@ -9,13 +9,12 @@ second_image_arr = cv2.imread('MixedVegetables.jpg',0)
 
 img2_row = len(second_image_arr) #268
 img2_col =  len(second_image_arr[0]) #400
-
 def showImage(img):
 	cv2.imshow('image',img)
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 	return img
-
+showImage(second_image_arr)
 def histogram(img):
 	hist = cv2.calcHist([img],[0],None,[256],[0,256])
 	print hist
@@ -87,6 +86,7 @@ def crack_edge(img):
 	return np.uint8(result)
 
 def threshold(img):
+	thres = 180
 	row = len(img)
 	col = len(img[0])
 	result = np.zeros(shape = (row,col),dtype=np.float)
@@ -94,15 +94,18 @@ def threshold(img):
 	
 	for i in range(row):
 		for j in range(col):
-			if(img[i][j] < 150):
+			if(img[i][j] < thres):
 				result[i][j] = 0
 			else:
 				result[i][j] = img[i][j]
 	result = np.uint8(result)		
 	showImage(result)
-	print result
 	return result
-
+	
+def merge(img):
+	#recursively check neighbor of a pixel. Check if abs(x - y) < T2, then merge. if not, don't merge.
+	#HOW DO YOU MERGE THEM? ASSIGN THE VALUE AS CURRENT INDEX? 
+	
 ce = crack_edge(second_image_arr)
 t1 = threshold(ce)
 #ret, thresh = cv2.threshold(second_image_arr,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
