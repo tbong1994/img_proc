@@ -49,11 +49,15 @@ def showImage(img):
 
 def block_matching_3(img1,img2):
 	#3x3 block matching
-	row_img1 = len(img1)/3
-	col_img1 = len(img1[0])/3
-	ssd_values = np.zeros(shape = (row_img1,col_img1),dtype=np.float)#keep track of SSD values at that index.
-	for i in range(row_img1-1):
-		for j in range(col_img1-1):
+	row = len(img1)
+	col = len(img1[0])
+	#row_img1 = len(img1)/3
+	#col_img1 = len(img1[0])/3
+	ssd_values = np.zeros(shape = (row,col),dtype=np.float)#keep track of SSD values at that index.
+	print len(ssd_values)
+	print len(ssd_values[0])
+	for i in range(row-1):
+		for j in range(col-1):
 			#set block 3x3
 			if(i==0 or j==0): #3x3 only able from (1,1) and ends when (last-1,last-1)
 				continue
@@ -64,7 +68,7 @@ def block_matching_3(img1,img2):
 			#calculate SSD here.
 			img2_x = j #index for distance iterations in x directions in 2nd image.
 			ssd_min = 0.0 #min ssd value
-			if(col_img1-j > 10):
+			if(col-j > 10):
 				for k in range(10): #only calcaulte in the x direction.
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
 					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
@@ -79,8 +83,8 @@ def block_matching_3(img1,img2):
 						ssd_min = ssd
 					elif(ssd < ssd_min): #replace lowest ssd value.
 						ssd_min = ssd
-			elif(col_img1-j <10):
-				for k in range(col_img1-j-1):
+			elif(col-j <10):
+				for k in range(col-1):
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
 					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
 					+math.pow(block[1][1]-img2[i][k],2) + math.pow(block[1][2]-img2[i][k+1],2)
@@ -95,9 +99,12 @@ def block_matching_3(img1,img2):
 						ssd_min = ssd
 			ssd_values[i][j] = ssd_min #save ssd value for index (i,j)
 	print ssd_values
+	#print len(ssd_values)
+	#print len(ssd_values[0])
 	showImage(np.uint8(ssd_values))
 #img3 should be the input image.
 
-block_matching_3(img3,img1)
-block_matching_3(img3,img2)
+#block_matching_3(img3,img2)
+#block_matching_3(img3,img1)
+#block_matching_3(img2,img1)
 	
