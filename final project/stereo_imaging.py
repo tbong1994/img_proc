@@ -3,6 +3,7 @@
 #http://mccormickml.com/2014/01/10/stereo-vision-tutorial-part-i/
 import cv2
 import numpy as np
+np.seterr(over='ignore')
 from scipy import signal
 import PIL
 import math

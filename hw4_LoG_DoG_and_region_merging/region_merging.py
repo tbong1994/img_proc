@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+np.seterr(over='ignore')
 from scipy import signal
 import PIL
 import math
