@@ -10,7 +10,7 @@ from scipy import misc
 ##load image
 #img = cv2.imread("file") --> loads image as an array.
 
-img_Arr = cv2.imread("avengers.jpg")#load image
+img_Arr = cv2.imread("img.jpg")#load image
 img_Arr = cv2.cvtColor(img_Arr, cv2.COLOR_RGB2GRAY) #convert img to grayscale
 
 
@@ -76,6 +76,13 @@ def computeMSE(original, reconstructed):
 			res += result
 	print res
 
-ft = FT(img_Arr)
-ift = inverseFT(ft)
+#ft = FT(img_Arr)
+#ift = inverseFT(ft)
+showImage(img_Arr)
+ft = np.fft.fft2(img_Arr)
+ft = np.uint8(ft)
+showImage(ft)
+ift = np.fft.ifft2(ft)
+ift = np.uint8(ift)
+showImage(ift)
 computeMSE(ft,ift)
