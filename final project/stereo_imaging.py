@@ -50,54 +50,95 @@ def block_matching_3(img1,img2):
 	#3x3 block matching
 	row = len(img1)
 	col = len(img1[0])
-	#row_img1 = len(img1)/3
-	#col_img1 = len(img1[0])/3
+	#print len(ssd_values)
+	#print len(ssd_values[0])
+	
 	ssd_values = np.zeros(shape = (row,col),dtype=np.float)#keep track of SSD values at that index.
-	print len(ssd_values)
-	print len(ssd_values[0])
+	
 	for i in range(row-1):
 		for j in range(col-1):
 			#set block 3x3
 			if(i==0 or j==0): #3x3 only able from (1,1) and ends when (last-1,last-1)
 				continue
-			else:# 3x3 block
+			else:# 3x3 block ====WORKS===
 				block = np.array([(img1[i-1][j-1],img1[i-1][j],img1[i-1][j+1]),
 								(img1[i][j-1],img1[i][j],img1[i][j+1]),
 								(img1[i+1][j-1],img1[i+1][j],img1[i+1][j+1])])
+				#print block
+			
 			#calculate SSD here.
-			img2_x = j #index for distance iterations in x directions in 2nd image.
 			ssd_min = 0.0 #min ssd value
-			if(col-j > 10):
-				for k in range(10): #only calcaulte in the x direction.
+			
+			####I'M GOING TO SET THE SEARCH DISTANCE TO 10. SO 5 TO THE LEFT AND 5 TO THE RIGHT.
+			##MAKE THIS FUNCTION WORK FOR BOTH IMAGES.. SO IT NEEDS TO ITERATE 10 PIXELS SUCCESSFULLY WHEREVER THE INDEX IS..
+			
+			if(j<10 and j!=0):
+				for k in range(1,j):
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
 					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
 					+math.pow(block[1][1]-img2[i][k],2) + math.pow(block[1][2]-img2[i][k+1],2)
 					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 					
-					img2_x+=1 #increase index for x direction.
+					#get the lowest SSD value and append that value to ssd values array.
+					if(ssd_min==0.0): #for the initial ssd_min
+						ssd_min = ssd
+					else:
+						if(ssd < ssd_min): #replace lowest ssd value.
+							ssd_min = ssd
+				ssd_values[i][j] = ssd_min
+			elif(col-j<10):
+				##ITERATE ONLY COL-J TIMES TO THE RIGHT IF COL-J <10
+				for k in range(j, col-j):
+					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
+					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
+					+math.pow(block[1][1]-img2[i][k],2) + math.pow(block[1][2]-img2[i][k+1],2)
+					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
+					+math.pow(block[2][2]-img2[i+1][k+1],2)
+				
 					
 					#get the lowest SSD value and append that value to ssd values array.
 					if(ssd_min==0.0): #for the initial ssd_min
 						ssd_min = ssd
-					elif(ssd < ssd_min): #replace lowest ssd value.
-						ssd_min = ssd
-			elif(col-j <10):
-				for k in range(col-1):
+					else:
+						if(ssd < ssd_min): #replace lowest ssd value.
+							ssd_min = ssd
+				ssd_values[i][j] = ssd_min
+			else:
+				##iterate from the left
+				for k in range(j-10,j): #only calcaulte in the x direction.
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
 					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
 					+math.pow(block[1][1]-img2[i][k],2) + math.pow(block[1][2]-img2[i][k+1],2)
 					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 					
-					img2_x+=1 #increase index for x direction.
+					
 					#get the lowest SSD value and append that value to ssd values array.
 					if(ssd_min==0.0): #for the initial ssd_min
 						ssd_min = ssd
-					elif(ssd < ssd_min): #replace lowest ssd value.
+					else:
+						if(ssd < ssd_min): #replace lowest ssd value.
+							ssd_min = ssd
+				ssd_values[i][j] = ssd_min
+				##ITERATE TO THE RIGHT
+				for k in range(j,j+9):
+					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
+					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
+					+math.pow(block[1][1]-img2[i][k],2) + math.pow(block[1][2]-img2[i][k+1],2)
+					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
+					+math.pow(block[2][2]-img2[i+1][k+1],2)
+					
+					
+					#get the lowest SSD value and append that value to ssd values array.
+					if(ssd_min==0.0): #for the initial ssd_min
 						ssd_min = ssd
-			ssd_values[i][j] = ssd_min #save ssd value for index (i,j)
+					else:
+						if(ssd < ssd_min): #replace lowest ssd value.
+							ssd_min = ssd
+				ssd_values[i][j] = ssd_min
 	showImage(np.uint8(ssd_values))
+	print ssd_values
 	return ssd_values
 	#print len(ssd_values)
 	#print len(ssd_values[0])
@@ -117,8 +158,9 @@ def computeMSE(img1, img2):
 			result = math.pow((img1[i][j] - img2[i][j]),2)
 			res += result
 	print res
+
 ##DISPARITY WITH BLOCK 3X3
-#disp1 = block_matching_3(img3,img2)
+disp1 = block_matching_3(img3,img2)
 #disp2 = block_matching_3(img2,img3)
 
 ##DISPARITY WITH BLOCK 9X9
