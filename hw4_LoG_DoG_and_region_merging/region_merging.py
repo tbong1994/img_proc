@@ -87,7 +87,7 @@ def crack_edge(img):
 	return np.uint8(result)
 
 def threshold(img):
-	thres = 180
+	thres = 150
 	row = len(img)
 	col = len(img[0])
 	result = np.zeros(shape = (row,col),dtype=np.float)
