@@ -103,7 +103,7 @@ def threshold(img):
 	showImage(result)
 	return result
 	
-def merge(img):
+#def merge(img):
 	#recursively check neighbor of a pixel. Check if abs(x - y) < T2, then merge. if not, don't merge.
 	#HOW DO YOU MERGE THEM? ASSIGN THE VALUE AS CURRENT INDEX? 
 	

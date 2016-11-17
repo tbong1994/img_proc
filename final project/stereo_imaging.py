@@ -104,7 +104,7 @@ def block_matching_3(img1,img2):
 	showImage(np.uint8(ssd_values))
 #img3 should be the input image.
 
-#block_matching_3(img3,img2)
-#block_matching_3(img3,img1)
-#block_matching_3(img2,img1)
+block_matching_3(img3,img2)
+block_matching_3(img3,img1)
+block_matching_3(img2,img1)
 	
