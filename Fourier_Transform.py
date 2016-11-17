@@ -72,7 +72,7 @@ def computeMSE(original, reconstructed):
 	res = 0.0
 	for i in range(rows):
 		for j in range(columns):
-			result = math.pow((original[i][j] - reconstructed[0][0]),2)
+			result = math.pow((original[i][j] - reconstructed[i][j]),2)
 			res += result
 	print res
 

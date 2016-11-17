@@ -9,12 +9,11 @@ import PIL
 import math
 from matplotlib import pyplot as plt
 
-img1 = cv2.imread('view1.png',0) #right most
 img2 = cv2.imread('view3.png',0) #middle
 img3 = cv2.imread('view5.png',0) #left most
 
-row = len(img1)
-col = len(img1[0])
+row = len(img2)
+col = len(img2[0])
 
 #print row #370
 #print col #463
@@ -98,13 +97,31 @@ def block_matching_3(img1,img2):
 					elif(ssd < ssd_min): #replace lowest ssd value.
 						ssd_min = ssd
 			ssd_values[i][j] = ssd_min #save ssd value for index (i,j)
-	print ssd_values
+	showImage(np.uint8(ssd_values))
+	return ssd_values
 	#print len(ssd_values)
 	#print len(ssd_values[0])
-	showImage(np.uint8(ssd_values))
-#img3 should be the input image.
 
-block_matching_3(img3,img2)
-block_matching_3(img3,img1)
-block_matching_3(img2,img1)
+def dynamic_disp(img1,img2):
+	rows = len(img1)
+	columns = len(img1[0])
+	##get the longest common subsequent between 2 images. occlusions are blank(0).? 
 	
+def computeMSE(img1, img2):
+	rows = len(img1)
+	columns = len(img1[0])
+	
+	res = 0.0
+	for i in range(rows):
+		for j in range(columns):
+			result = math.pow((img1[i][j] - img2[i][j]),2)
+			res += result
+	print res
+##DISPARITY WITH BLOCK 3X3
+#disp1 = block_matching_3(img3,img2)
+#disp2 = block_matching_3(img2,img3)
+
+##DISPARITY WITH BLOCK 9X9
+
+##DISPARITY WITH DYNAMIC PROGRAMMING
+
