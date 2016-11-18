@@ -46,6 +46,14 @@ def showImage(img):
 #OR YOU CAN JUST ESTIMATE HOW FAR THE IMAGES HAVE BEEN SHIFTED, AND SET HOW FAR YOU WILL GO TO 
 #SEARCH, BECAUSE THIS COULD SAVE SOME TIME.
 
+
+#==============================================================================
+#SSD just gives you the matching pixel in the other view. You will have to subtract the column values to obtain disparity at that pixel
+#Example: If (300.20) in Left image found a match in (300,70) in right image -
+#The disparity value at (300,20) for left image will be 70 - 20 = 50
+#==============================================================================
+
+
 def block_matching_3(img1,img2):
 	#3x3 block matching
 	row = len(img1)
@@ -67,7 +75,7 @@ def block_matching_3(img1,img2):
 				#print block
 			
 			#calculate SSD here.
-			ssd_min = 0.0 #min ssd value
+			ssd_min = 10000000 #min ssd value
 			
 			####I'M GOING TO SET THE SEARCH DISTANCE TO 10. SO 5 TO THE LEFT AND 5 TO THE RIGHT.
 			##MAKE THIS FUNCTION WORK FOR BOTH IMAGES.. SO IT NEEDS TO ITERATE 10 PIXELS SUCCESSFULLY WHEREVER THE INDEX IS..
@@ -81,11 +89,8 @@ def block_matching_3(img1,img2):
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 					
 					#get the lowest SSD value and append that value to ssd values array.
-					if(ssd_min==0.0): #for the initial ssd_min
+					if(ssd < ssd_min): #replace lowest ssd value.
 						ssd_min = ssd
-					else:
-						if(ssd < ssd_min): #replace lowest ssd value.
-							ssd_min = ssd
 				ssd_values[i][j] = ssd_min
 			elif(col-j<10):
 				##ITERATE ONLY COL-J TIMES TO THE RIGHT IF COL-J <10
@@ -98,11 +103,9 @@ def block_matching_3(img1,img2):
 				
 					
 					#get the lowest SSD value and append that value to ssd values array.
-					if(ssd_min==0.0): #for the initial ssd_min
+					
+					if(ssd < ssd_min): #replace lowest ssd value.
 						ssd_min = ssd
-					else:
-						if(ssd < ssd_min): #replace lowest ssd value.
-							ssd_min = ssd
 				ssd_values[i][j] = ssd_min
 			else:
 				##iterate from the left
@@ -115,11 +118,8 @@ def block_matching_3(img1,img2):
 					
 					
 					#get the lowest SSD value and append that value to ssd values array.
-					if(ssd_min==0.0): #for the initial ssd_min
+					if(ssd < ssd_min): #replace lowest ssd value.
 						ssd_min = ssd
-					else:
-						if(ssd < ssd_min): #replace lowest ssd value.
-							ssd_min = ssd
 				ssd_values[i][j] = ssd_min
 				##ITERATE TO THE RIGHT
 				for k in range(j,j+9):
@@ -131,14 +131,11 @@ def block_matching_3(img1,img2):
 					
 					
 					#get the lowest SSD value and append that value to ssd values array.
-					if(ssd_min==0.0): #for the initial ssd_min
+					if(ssd < ssd_min): #replace lowest ssd value.
 						ssd_min = ssd
-					else:
-						if(ssd < ssd_min): #replace lowest ssd value.
-							ssd_min = ssd
 				ssd_values[i][j] = ssd_min
-	showImage(ssd_values)
-	#showImage(np.uint8(ssd_values))
+	#showImage(ssd_values)
+	showImage(np.uint8(ssd_values))
 	print ssd_values
 	return ssd_values
 	#print len(ssd_values)
@@ -147,7 +144,12 @@ def block_matching_3(img1,img2):
 def dynamic_disp(img1,img2):
 	rows = len(img1)
 	columns = len(img1[0])
+	
+	result = np.ones(shape = (rows,columns),dtype=np.int) #output array
+	
 	##get the longest common subsequent between 2 images. occlusions are blank(0).? 
+	
+	for 
 	
 def computeMSE(img1, img2):
 	rows = len(img1)
@@ -166,13 +168,13 @@ def validate_disparity(img1,img2):
 	plt.imshow(disparity,'gray')
 	plt.show()
 
-validate_disparity(img1,img2)
-validate_disparity(img2,img1)
+#validate_disparity(img1,img2)
+#validate_disparity(img2,img1)
 
 
 ##DISPARITY WITH BLOCK 3X3
-#disp1 = block_matching_3(img1,img2)
-#disp2 = block_matching_3(img2,img1)
+disp1 = block_matching_3(img1,img2)
+disp2 = block_matching_3(img2,img1)
 
 ##DISPARITY WITH BLOCK 9X9
 
