@@ -9,8 +9,8 @@ import PIL
 import math
 from matplotlib import pyplot as plt
 
-img2 = cv2.imread('view3.png',0) #middle
-img3 = cv2.imread('view5.png',0) #left most
+img1 = cv2.imread('view3.png',0) #middle
+img2 = cv2.imread('view5.png',0) #left most
 
 row = len(img2)
 col = len(img2[0])
@@ -137,7 +137,8 @@ def block_matching_3(img1,img2):
 						if(ssd < ssd_min): #replace lowest ssd value.
 							ssd_min = ssd
 				ssd_values[i][j] = ssd_min
-	showImage(np.uint8(ssd_values))
+	showImage(ssd_values)
+	#showImage(np.uint8(ssd_values))
 	print ssd_values
 	return ssd_values
 	#print len(ssd_values)
@@ -159,9 +160,19 @@ def computeMSE(img1, img2):
 			res += result
 	print res
 
+def validate_disparity(img1,img2):
+	stereo = cv2.StereoBM(cv2.STEREO_BM_BASIC_PRESET,ndisparities=16, SADWindowSize=15)
+	disparity = stereo.compute(img1,img2)
+	plt.imshow(disparity,'gray')
+	plt.show()
+
+validate_disparity(img1,img2)
+validate_disparity(img2,img1)
+
+
 ##DISPARITY WITH BLOCK 3X3
-disp1 = block_matching_3(img3,img2)
-#disp2 = block_matching_3(img2,img3)
+#disp1 = block_matching_3(img1,img2)
+#disp2 = block_matching_3(img2,img1)
 
 ##DISPARITY WITH BLOCK 9X9
 
