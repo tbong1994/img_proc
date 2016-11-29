@@ -61,7 +61,8 @@ def block_matching_3(img1,img2):
 	#print len(ssd_values)
 	#print len(ssd_values[0])
 	
-	ssd_values = np.zeros(shape = (row,col),dtype=np.float)#keep track of SSD values at that index.
+	disparity_values = np.zeros(shape = (row,col),dtype=np.float)#keep track of SSD values at that index.
+	dist = 0 #distance value of 2 pix
 	
 	for i in range(row-1):
 		for j in range(col-1):
@@ -75,12 +76,13 @@ def block_matching_3(img1,img2):
 				#print block
 			
 			#calculate SSD here.
-			ssd_min = 10000000 #min ssd value
+			
+			#ssd_min = 10000000 #min ssd value
 			
 			####I'M GOING TO SET THE SEARCH DISTANCE TO 10. SO 5 TO THE LEFT AND 5 TO THE RIGHT.
 			##MAKE THIS FUNCTION WORK FOR BOTH IMAGES.. SO IT NEEDS TO ITERATE 10 PIXELS SUCCESSFULLY WHEREVER THE INDEX IS..
 			
-			if(j<10 and j!=0):
+			if(j<100 and j!=0):
 				for k in range(1,j):
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
 					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
@@ -88,11 +90,15 @@ def block_matching_3(img1,img2):
 					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 					
-					#get the lowest SSD value and append that value to ssd values array.
-					if(ssd < ssd_min): #replace lowest ssd value.
-						ssd_min = ssd
-				ssd_values[i][j] = ssd_min
-			elif(col-j<10):
+					#if(ssd < ssd_min): #replace lowest ssd value.
+						#ssd_min = ssd
+						
+					if(ssd ==0): #found the matching block.
+						#get the distance of pixels.
+						dist = abs(j - k) # j is x index of orig image, k is x index of 2nd image.
+						disparity_values[i][j] = dist
+				#ssd_values[i][j] = ssd_min
+			elif(col-j<100):
 				##ITERATE ONLY COL-J TIMES TO THE RIGHT IF COL-J <10
 				for k in range(j, col-j):
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
@@ -102,45 +108,53 @@ def block_matching_3(img1,img2):
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 				
 					
-					#get the lowest SSD value and append that value to ssd values array.
-					
-					if(ssd < ssd_min): #replace lowest ssd value.
-						ssd_min = ssd
-				ssd_values[i][j] = ssd_min
+					if(ssd ==0): #found the matching block.
+						#get the distance of pixels.
+						dist = abs(j - k) # j is x index of orig image, k is x index of 2nd image.
+						disparity_values[i][j] = dist
+					#if(ssd < ssd_min): #replace lowest ssd value.
+						#ssd_min = ssd
+				#ssd_values[i][j] = ssd_min
 			else:
 				##iterate from the left
-				for k in range(j-10,j): #only calcaulte in the x direction.
+				for k in range(j-100,j): #only calcaulte in the x direction.
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
 					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
 					+math.pow(block[1][1]-img2[i][k],2) + math.pow(block[1][2]-img2[i][k+1],2)
 					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
-					
-					
-					#get the lowest SSD value and append that value to ssd values array.
-					if(ssd < ssd_min): #replace lowest ssd value.
-						ssd_min = ssd
-				ssd_values[i][j] = ssd_min
+										
+					if(ssd ==0): #found the matching block.
+						#get the distance of pixels.
+						dist = abs(j - k) # j is x index of orig image, k is x index of 2nd image.
+						disparity_values[i][j] = dist
+					#if(ssd < ssd_min): #replace lowest ssd value.
+						#ssd_min = ssd
+				#ssd_values[i][j] = ssd_min
 				##ITERATE TO THE RIGHT
-				for k in range(j,j+9):
+				for k in range(j,j+99):
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
 					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
 					+math.pow(block[1][1]-img2[i][k],2) + math.pow(block[1][2]-img2[i][k+1],2)
 					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 					
-					
+					if(ssd ==0): #found the matching block.
+						#get the distance of pixels.
+						dist = abs(j - k) # j is x index of orig image, k is x index of 2nd image.
+						disparity_values[i][j] = dist
+						
 					#get the lowest SSD value and append that value to ssd values array.
-					if(ssd < ssd_min): #replace lowest ssd value.
-						ssd_min = ssd
-				ssd_values[i][j] = ssd_min
+					#if(ssd < ssd_min): #replace lowest ssd value.
+						#ssd_min = ssd
+				#ssd_values[i][j] = ssd_min
 	#showImage(ssd_values)
-	showImage(np.uint8(ssd_values))
-	print ssd_values
-	return ssd_values
-	#print len(ssd_values)
-	#print len(ssd_values[0])
-
+	showImage(disparity_values)
+	
+	print disparity_values
+	
+	#return disparity_values
+	
 def dynamic_disp(img1,img2):
 	rows = len(img1)
 	columns = len(img1[0])
@@ -149,7 +163,6 @@ def dynamic_disp(img1,img2):
 	
 	##get the longest common subsequent between 2 images. occlusions are blank(0).? 
 	
-	for 
 	
 def computeMSE(img1, img2):
 	rows = len(img1)
@@ -173,8 +186,8 @@ def validate_disparity(img1,img2):
 
 
 ##DISPARITY WITH BLOCK 3X3
-disp1 = block_matching_3(img1,img2)
-disp2 = block_matching_3(img2,img1)
+#disp1 = block_matching_3(img1,img2)
+#disp2 = block_matching_3(img2,img1)
 
 ##DISPARITY WITH BLOCK 9X9
 
