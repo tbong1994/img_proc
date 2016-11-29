@@ -275,6 +275,21 @@ def dynamic_disp(img1,img2):
 	
 	##get the longest common subsequent between 2 images. occlusions are blank(0).? 
 	
+	#FOR EACH ROW(1 FROM IMG1, 1 FROM IMG2), YOU NEED AN INDEX. say i is index for img1 and j is index for img2. if elem[i] == elem[j] then append the element to output string and i++, j++.
+	#if elem[i] != elem[j] then only i++ or j++(doesn't matter which one). Keep going until either i or j == last index. then the output string is the common subsequent string. Append that to output array. repeat for each row.
+	
+	for row in img1: #img 1 row selected.
+		img1_index=0
+		common_subsequence = ''
+		for row in img2: #img2 row selected.
+			for col in img2[0]: #each elem from img2 row.
+				
+				#increase img1 index only if they match.
+				#img2 index is automatically increasing, so img1_index only gets increased when elem[i] == elem[j]
+				if(col == img1[img1_index]):
+					#append the value to output string.
+					common_subsequence += col
+					img1_index+=1
 	
 def computeMSE(img1, img2):
 	rows = len(img1)
