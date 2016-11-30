@@ -271,25 +271,39 @@ def dynamic_disp(img1,img2):
 	rows = len(img1)
 	columns = len(img1[0])
 	
-	result = np.ones(shape = (rows,columns),dtype=np.int) #output array
+	result = np.zeros(shape = (rows,columns),dtype=np.int) #output array
+	out_row = 0 #output array index row
 	
 	##get the longest common subsequent between 2 images. occlusions are blank(0).? 
 	
-	#FOR EACH ROW(1 FROM IMG1, 1 FROM IMG2), YOU NEED AN INDEX. say i is index for img1 and j is index for img2. if elem[i] == elem[j] then append the element to output string and i++, j++.
-	#if elem[i] != elem[j] then only i++ or j++(doesn't matter which one). Keep going until either i or j == last index. then the output string is the common subsequent string. Append that to output array. repeat for each row.
+	#FOR EACH ROW(1 FROM IMG1, 1 FROM IMG2), YOU NEED AN INDEX. say i is index for img1 and j is index for img2. if elem[i] == elem[j] then append the element to output array and i++, j++.
+	#if elem[i] != elem[j] then only i++ or j++(doesn't matter which one). Keep going until either i or j == last index. Repeat for each row.
 	
-	for row in img1: #img 1 row selected.
+	img2_row = 0 #index for img2 row
+	
+	#count = 0
+	
+	for img1_row in img1: #img 1 row selected.
+		#count+=1
 		img1_index=0
-		common_subsequence = ''
-		for row in img2: #img2 row selected.
-			for col in img2[0]: #each elem from img2 row.
+		out_col = 0 #output array index col
+		
+		for col in img2[img2_row]: #each elem from img2 row.
+			##increase img1 index only if they match.
+			##img2 index is automatically increasing, so img1_index only gets increased when elem[i] == elem[j]
+			if(col == img1_row[img1_index]):
 				
-				#increase img1 index only if they match.
-				#img2 index is automatically increasing, so img1_index only gets increased when elem[i] == elem[j]
-				if(col == img1[img1_index]):
-					#append the value to output string.
-					common_subsequence += col
-					img1_index+=1
+				#print "%s : %s"%(col, img1_row[img1_index])
+				
+				result[out_row][out_col] = col #append the value to output array.
+				out_col += 1 #increase output col index.
+				img1_index+=1 #increase 1st image index.
+				##count +=1
+		#print "%s : %s"%(out_row,out_col)
+		img2_row += 1
+	print result
+	#print count
+	#showImage(np.uint(result))
 	
 def computeMSE(img1, img2):
 	rows = len(img1)
@@ -323,3 +337,4 @@ def validate_disparity(img1,img2):
 #disp4 = block_matching_9(img2,img1)
 
 ##DISPARITY WITH DYNAMIC PROGRAMMING
+disp5 = dynamic_disp(img1,img2)
