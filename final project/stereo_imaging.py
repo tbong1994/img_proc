@@ -283,29 +283,29 @@ def dynamic_disp(img1,img2):
 	img1_row = 0
 	#count = 0
 	
-	for elem_img1 in img1[img_row]: #img 1 row selected.
+	for img1_row in img1: #img 1 rows
+		img1_col = 0
 		#count+=1
-		img1_index=0
 		out_col = 0 #output array index col
 		
 		for elem_img2 in img2[img2_row]: #each elem from img2 row.
-			##increase img1 index only if they match.
-			##img2 index is automatically increasing, so img1_index only gets increased when elem[i] == elem[j]
-			if(col == img1_row[img1_index]):
+			###increase img1 index only if they match.
+			###img2 index is automatically increasing, so img1_index only gets increased when elem[i] == elem[j]
+			if(elem_img2 == img1_row[img1_col]):
 				
-				#print "%s : %s"%(col, img1_row[img1_index])
+				#print "%s : %s"%(elem_img2, img1_row[img1_col])
 				
-				result[out_row][out_col] = col #append the value to output array.
+				result[out_row][out_col] = elem_img2 #append the value to output array.
 				out_col += 1 #increase output col index.
-				img1_index+=1 #increase 1st image index.
-				##count +=1
-		#print "%s : %s"%(out_row,out_col)
+				#count +=1
+		print "%s : %s"%(out_row,out_col)
 		out_row +=1
 		img2_row += 1
+	
 	print result
 	#print count
 	#showImage(np.uint(result))
-	showImage(result)
+	#showImage(result)
 	
 def computeMSE(img1, img2):
 	rows = len(img1)
