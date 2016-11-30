@@ -339,4 +339,4 @@ def validate_disparity(img1,img2):
 #disp4 = block_matching_9(img2,img1)
 
 ##DISPARITY WITH DYNAMIC PROGRAMMING
-disp5 = dynamic_disp(img1,img2)
+#disp5 = dynamic_disp(img1,img2)
