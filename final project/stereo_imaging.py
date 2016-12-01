@@ -121,13 +121,12 @@ def block_matching_3(img1,img2):
 						#ssd_min = ssd
 				#ssd_values[i][j] = ssd_min
 				
-	#showImage(ssd_values)
-	showImage(disparity_values)
-	#showImage(np.uint(disparity_values))
 	
-	print disparity_values
+	#showImage(disparity_values)
 	
-	#return disparity_values
+	#print disparity_values
+	
+	return disparity_values
 
 
 
@@ -204,11 +203,11 @@ def block_matching_9(img1,img2):
 						disparity_values[i][j] = dist
 					
 	#showImage(ssd_values)
-	showImage(disparity_values)
+	#showImage(disparity_values)
 	#showImage(np.uint(disparity_values))
 	
-	print disparity_values
-	#return disparity_values
+	#print disparity_values
+	return disparity_values
 
 def dynamic_disp(img1,img2):
 	rows = len(img1)
@@ -276,13 +275,15 @@ def validate_disparity(img1,img2):
 
 ##DISPARITY WITH BLOCK 3X3
 
-#disp1 = block_matching_3(img1,img2)
+disp1 = block_matching_3(img1,img2)
 #disp2 = block_matching_3(img2,img1)
 
 ##DISPARITY WITH BLOCK 9X9
 
-#disp3 = block_matching_9(img1,img2)
+disp3 = block_matching_9(img1,img2)
 #disp4 = block_matching_9(img2,img1)
 
 ##DISPARITY WITH DYNAMIC PROGRAMMING
 #disp5 = dynamic_disp(img2,img1)
+
+mse = computeMSE(disp1,disp3)
