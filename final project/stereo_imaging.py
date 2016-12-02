@@ -26,7 +26,7 @@ def showImage(img):
 	#print img.dtype
 
 #BLOCK MATCHING is setting a size of 3x3 or 9x9 in this project, from one image.
-#Then try to find the most identical block from the other images.
+#Then try to find the most identical block from the other images. Ideally SSD should be 0.
 
 #First procedure is to set the block 3x3 and 9x9 for this project.
 #iterate through the input array and for each 3x3 or 9x9 block, try searching for the most
@@ -34,17 +34,14 @@ def showImage(img):
 #the maximum horizontal distance to search for. Only need to search in the x axis because
 #All three images have the same height and level. ==> This is RECTIFICATION.
 
-#USE Sum of Squared Differences. ==> for each block to compare, do the following:
-#1)Calcalate difference of each pixel from image1 to image 2 then square the difference.
-#3)After all the pixels within the block have been calculated, add all pixel values together.
-#4)The added value is the determinant of similarities. The lower the value == the closer it is.
+#USE the Sum of Squared Differences. ==> for each block to compare, do the following:
+#1)Calcalate difference of each pixel from image1 to image2 then square the difference.
+#2)After all the pixels within the block have been calculated, add all the difference values together.
+#3)The added value is the determinant of similarities(SSD). The lower the value == the closer it is.
+#4)The smallest SSD indicates the most similar block. Calculate the column distance from img1 to the index of the pixel value with the lowest SSD value from img2.
 
-#YOU CAN HAVE AN ARRAY SIZE OF IMG/3 OR IMG/9, and each index represents the SSD value corresponding
-#to the index from the image. Then when the array is all filled up, just get the lowest value and pick that.
-#then initialize the array and move on to the next row.
-
-#OR YOU CAN JUST ESTIMATE HOW FAR THE IMAGES HAVE BEEN SHIFTED, AND SET HOW FAR YOU WILL GO TO 
-#SEARCH, BECAUSE THIS COULD SAVE SOME TIME.
+##ITERATING THROUGH EVERY ELEMENT IS INEFFICIENT BECAUSE YOU KNOW THE IMAGES ONLY DIFFER SLIGHTLY IN POSITION.
+##SET THE DISTANCE SEARCH AND ONLY ITERATE THROUGH THAT DOMAIN SEARCH, ie) 10 or 20 px to the left and to the right.
 
 
 #==============================================================================
@@ -74,15 +71,13 @@ def block_matching_3(img1,img2):
 			##MAKE THIS FUNCTION WORK FOR BOTH IMAGES.. SO IT NEEDS TO ITERATE 20 PIXELS SUCCESSFULLY WHEREVER THE INDEX IS..
 			
 			if(j<50):
+				ssd_min = 100
 				for k in range(1,j+50): #j is close to the left most side.. iterate to the end of the left side and iterate 10 to the right.
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
 					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
 					+math.pow(block[1][1]-img2[i][k],2) + math.pow(block[1][2]-img2[i][k+1],2)
 					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
-					
-					#if(ssd < ssd_min): #replace lowest ssd value.
-						#ssd_min = ssd
 						
 					if(ssd < 100): #found the matching block.
 						#get the distance of pixels.
@@ -122,8 +117,8 @@ def block_matching_3(img1,img2):
 				#ssd_values[i][j] = ssd_min
 				
 	
-	#showImage(disparity_values)
-	
+	showImage(disparity_values)
+	showImage(np.uint(disparity_values))
 	#print disparity_values
 	
 	return disparity_values
@@ -202,18 +197,16 @@ def block_matching_9(img1,img2):
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
 						disparity_values[i][j] = dist
 					
-	#showImage(ssd_values)
-	#showImage(disparity_values)
-	#showImage(np.uint(disparity_values))
+	showImage(disparity_values)
+	showImage(np.uint(disparity_values))
 	
-	#print disparity_values
 	return disparity_values
 
 def dynamic_disp(img1,img2):
 	rows = len(img1)
 	columns = len(img1[0])
 	
-	result = np.zeros(shape = (rows,columns),dtype=np.int) #output array
+	result = np.zeros(shape = (rows,columns),dtype=np.float) #output array
 	out_row = 0 #output array index row
 	
 	##get the longest common subsequent between 2 images. occlusions are blank(0).? 
@@ -226,22 +219,32 @@ def dynamic_disp(img1,img2):
 	count = 0
 	
 	for img1_row in img1: #img 1 rows
-		img1_col = 0
+		img1_col_i = 0
 		#count+=1
 		out_col = 0 #output array index col
+		img2_col_i = 0#index for img2 column
+		
+		
+		###THIS ALGORITHM IS NOT CORRECT BECAUSE YOU'RE ONLY ITERATING FROM IMAGE 1, AND
+		###THIS WILL NOT GET THE OPTIMAL SUBSEQUENCE AS IT WILL NOT KEEP TRACK OF THE LONGEST COMMON SUBSEQ.
+		###RATHER ONE OF THE SUBSEQUENCES. IMG1 COL VALUE WILL NOT INCREASE IF THE VALUES DON'T MATCH.
+		###THEN IT WILL BE STUCK AT THAT INDEX UNTIL YOU FIND THE MATCHING VALUE FROM IMAGE2 AND KEEP ITERATING.
+		###BUT THERE COULD HAVE BEEN A BETTER SUBSEQUENCE DURING THOSE ITERATIONS.
+		
 		
 		for elem_img2 in img2[img2_row]: #each elem from img2 row.
 			#print elem_img2
-			###increase img1 index only if they match.
-			###img2 index is automatically increasing, so img1_index only gets increased when elem[i] == elem[j]
-			if(elem_img2 == img1_row[img1_col]):
-				
-				#print "%s : %s"%(elem_img2, img1_row[img1_col]) #returns the same value
-				result[out_row][out_col] = elem_img2 #append the value to output array.
-				out_col += 1 #increase output col index.
-				img1_col
-				#count +=1
 			
+			###increase img1 index only if the values match.
+			###img2 index is increased in this loop.
+			if(elem_img2 == img1_row[img1_col_i]):
+				result[out_row][out_col] = img1_col_i - img2_col_i
+				#result[out_row][out_col] = elem_img2 #append the value to output array.
+				out_col += 1 #increase output col index.
+				img1_col_i += 1
+				#count +=1
+			img2_col_i+=1
+		
 		#print "%s : %s"%(out_row,out_col)
 		out_row +=1
 		img2_row += 1
@@ -249,8 +252,8 @@ def dynamic_disp(img1,img2):
 	#print count
 	print result
 	#print count
-	showImage(np.uint(result))
-	#showImage(result)
+	#showImage(np.uint(result))
+	showImage(result)
 	
 def computeMSE(img1, img2):
 	rows = len(img1)
@@ -275,15 +278,15 @@ def validate_disparity(img1,img2):
 
 ##DISPARITY WITH BLOCK 3X3
 
-disp1 = block_matching_3(img1,img2)
-#disp2 = block_matching_3(img2,img1)
+#disp1 = block_matching_3(img1,img2)
 
 ##DISPARITY WITH BLOCK 9X9
 
-disp3 = block_matching_9(img1,img2)
-#disp4 = block_matching_9(img2,img1)
+#disp2 = block_matching_9(img1,img2)
 
 ##DISPARITY WITH DYNAMIC PROGRAMMING
-#disp5 = dynamic_disp(img2,img1)
+disp3 = dynamic_disp(img2,img1)
 
-mse = computeMSE(disp1,disp3)
+##MSE CALCULATION. COMPARE WITH THE PROVIDED IMAGES
+
+#mse = computeMSE(disp1,disp3)
