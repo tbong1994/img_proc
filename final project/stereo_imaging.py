@@ -221,11 +221,17 @@ def dynamic_disp(img1,img2):
 	img1_row = 0
 	#count = 0
 	
-	for img1_row in img1: #img 1 rows
-		for img2_row in img2:
-			s = lcs_values(img1_row,img2_row,result)
-			print s
-	
+	sd = 20 #search distance
+	for i in range(rows):
+		for j in range(columns):
+			img1_values = img1[i][j:j+sd]
+			img2_values ] img2[i][j:j+sd]
+			lcs_values = lcs(img1_values,img2_values,result)
+			if(len(img1[0] - j - 1 < 20):
+				j+= 20 #skip to next block to find the lcs.
+			else:
+				j+= len(img1[0] - j - 1
+				
 	#print img2_row #370
 	#print count
 	
@@ -234,33 +240,8 @@ def dynamic_disp(img1,img2):
 	#showImage(np.uint(result))
 	#showImage(result)
 
-def lcs_values(X , Y, result):
-    # find the length of the strings
-    m = len(X)
-    n = len(Y)
-	
-    # declaring the array for storing the dp values
-    L = [[None]*(n+1) for i in xrange(m+1)] 
-    """Following steps build L[m+1][n+1] in bottom up fashion
-    Note: L[i][j] contains length of LCS of X[0..i-1]
-    and Y[0..j-1]"""
-    for i in range(m+1):
-        for j in range(n+1):
-            if i == 0 or j == 0 :
-                L[i][j] = 0
-            elif X[i-1] == Y[j-1]:
-                L[i][j] = L[i-1][j-1]+1
-                #print i
-            else:
-                L[i][j] = max(L[i-1][j] , L[i][j-1])
-                
-                #print i
-    # L[m][n] contains the length of LCS of X[0..n-1] & Y[0..m-1]
-    return L[m][n]
-    print result
-
-def lcs(X, Y):
-	m = len(X)
+def lcs(X, Y,result):
+	m = len(X) #length of col
 	n = len(Y)
 	
 	L = [[0 for x in xrange(n+1)] for x in xrange(m+1)]
@@ -278,7 +259,7 @@ def lcs(X, Y):
  
     # Following code is used to print LCS
 	index = L[m][n]
- 
+	
 	# Create a character array to store the lcs string
 	lcs = [""] * (index+1)
 	lcs[index] = "\0"
@@ -303,11 +284,6 @@ def lcs(X, Y):
 			i-=1
 		else:
 			j-=1
-
-s = "asdfsadfsdfzxf"
-d = "asdfasdfxzfwef"
-re = lcs(s,d)
-print re
 
 def computeMSE(img1, img2):
 	rows = len(img1)
