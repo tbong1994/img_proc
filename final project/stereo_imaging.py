@@ -12,6 +12,8 @@ from matplotlib import pyplot as plt
 img1 = cv2.imread('view3.png',0) #middle
 img2 = cv2.imread('view5.png',0) #left most
 
+ground_img1 = cv2.imread('disp1.png',0) #compare disparity map result
+ground_img2 = cv2.imread('disp5.png',0)
 row = len(img2)
 col = len(img2[0])
 
@@ -79,12 +81,13 @@ def block_matching_3(img1,img2):
 					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 						
-					if(ssd < 100): #found the matching block.
+					if(ssd < ssd_min): #found the matching block.
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
 						disparity_values[i][j] = dist
 			
 			if(col-1-j<50): #j is close to the right most side.. iterate to the end of the right side and iterate 10 to the left.
+				ssd_min = 100
 				for k in range(j-50, col-1):
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
 					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
@@ -92,7 +95,7 @@ def block_matching_3(img1,img2):
 					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 				
-					if(ssd < 100): #found the matching block.
+					if(ssd < ssd_min): #found the matching block.
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
 						disparity_values[i][j] = dist
@@ -101,6 +104,7 @@ def block_matching_3(img1,img2):
 				#ssd_values[i][j] = ssd_min
 			
 			else: #everywhere else. iterate 10 to the left and 10 to the right.
+				ssd_min = 100
 				for k in range(j-50,j+50): #only calcaulte in the x direction.
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
 					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
@@ -108,7 +112,7 @@ def block_matching_3(img1,img2):
 					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 										
-					if(ssd < 100): #found the matching block.
+					if(ssd < ssd_min): #found the matching block.
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
 						disparity_values[i][j] = dist
@@ -116,9 +120,8 @@ def block_matching_3(img1,img2):
 						#ssd_min = ssd
 				#ssd_values[i][j] = ssd_min
 				
-	
 	showImage(disparity_values)
-	showImage(np.uint(disparity_values))
+	#showImage(np.uint(disparity_values))
 	#print disparity_values
 	
 	return disparity_values
@@ -216,45 +219,96 @@ def dynamic_disp(img1,img2):
 	
 	img2_row = 0 #index for img2 row
 	img1_row = 0
-	count = 0
+	#count = 0
 	
 	for img1_row in img1: #img 1 rows
-		img1_col_i = 0
-		#count+=1
-		out_col = 0 #output array index col
-		img2_col_i = 0#index for img2 column
-		
-		
-		###THIS ALGORITHM IS NOT CORRECT BECAUSE YOU'RE ONLY ITERATING FROM IMAGE 1, AND
-		###THIS WILL NOT GET THE OPTIMAL SUBSEQUENCE AS IT WILL NOT KEEP TRACK OF THE LONGEST COMMON SUBSEQ.
-		###RATHER ONE OF THE SUBSEQUENCES. IMG1 COL VALUE WILL NOT INCREASE IF THE VALUES DON'T MATCH.
-		###THEN IT WILL BE STUCK AT THAT INDEX UNTIL YOU FIND THE MATCHING VALUE FROM IMAGE2 AND KEEP ITERATING.
-		###BUT THERE COULD HAVE BEEN A BETTER SUBSEQUENCE DURING THOSE ITERATIONS.
-		
-		
-		for elem_img2 in img2[img2_row]: #each elem from img2 row.
-			#print elem_img2
-			
-			###increase img1 index only if the values match.
-			###img2 index is increased in this loop.
-			if(elem_img2 == img1_row[img1_col_i]):
-				result[out_row][out_col] = img1_col_i - img2_col_i
-				#result[out_row][out_col] = elem_img2 #append the value to output array.
-				out_col += 1 #increase output col index.
-				img1_col_i += 1
-				#count +=1
-			img2_col_i+=1
-		
-		#print "%s : %s"%(out_row,out_col)
-		out_row +=1
-		img2_row += 1
-		
-	#print count
-	print result
-	#print count
-	#showImage(np.uint(result))
-	showImage(result)
+		for img2_row in img2:
+			s = lcs_values(img1_row,img2_row,result)
+			print s
 	
+	#print img2_row #370
+	#print count
+	
+	#print result
+	
+	#showImage(np.uint(result))
+	#showImage(result)
+
+def lcs_values(X , Y, result):
+    # find the length of the strings
+    m = len(X)
+    n = len(Y)
+	
+    # declaring the array for storing the dp values
+    L = [[None]*(n+1) for i in xrange(m+1)] 
+    """Following steps build L[m+1][n+1] in bottom up fashion
+    Note: L[i][j] contains length of LCS of X[0..i-1]
+    and Y[0..j-1]"""
+    for i in range(m+1):
+        for j in range(n+1):
+            if i == 0 or j == 0 :
+                L[i][j] = 0
+            elif X[i-1] == Y[j-1]:
+                L[i][j] = L[i-1][j-1]+1
+                #print i
+            else:
+                L[i][j] = max(L[i-1][j] , L[i][j-1])
+                
+                #print i
+    # L[m][n] contains the length of LCS of X[0..n-1] & Y[0..m-1]
+    return L[m][n]
+    print result
+
+def lcs(X, Y):
+	m = len(X)
+	n = len(Y)
+	
+	L = [[0 for x in xrange(n+1)] for x in xrange(m+1)]
+ 
+    # Following steps build L[m+1][n+1] in bottom up fashion. Note
+    # that L[i][j] contains length of LCS of X[0..i-1] and Y[0..j-1] 
+	for i in xrange(m+1):
+		for j in xrange(n+1):
+			if i == 0 or j == 0:
+				L[i][j] = 0
+			elif X[i-1] == Y[j-1]:
+				L[i][j] = L[i-1][j-1] + 1
+			else:
+				L[i][j] = max(L[i-1][j], L[i][j-1])
+ 
+    # Following code is used to print LCS
+	index = L[m][n]
+ 
+	# Create a character array to store the lcs string
+	lcs = [""] * (index+1)
+	lcs[index] = "\0"
+	
+	# Start from the right-most-bottom-most corner and
+	# one by one store characters in lcs[]
+	i = m
+	j = n
+	while i > 0 and j > 0:
+	
+		# If current character in X[] and Y are same, then
+		# current character is part of LCS
+		if X[i-1] == Y[j-1]:
+			lcs[index-1] = X[i-1]
+			i-=1
+			j-=1
+			index-=1
+	
+		# If not same, then find the larger of two and
+		# go in the direction of larger value
+		elif L[i-1][j] > L[i][j-1]:
+			i-=1
+		else:
+			j-=1
+
+s = "asdfsadfsdfzxf"
+d = "asdfasdfxzfwef"
+re = lcs(s,d)
+print re
+
 def computeMSE(img1, img2):
 	rows = len(img1)
 	columns = len(img1[0])
@@ -271,7 +325,7 @@ def validate_disparity(img1,img2):
 	disparity = stereo.compute(img1,img2)
 	plt.imshow(disparity,'gray')
 	plt.show()
-
+	
 #validate_disparity(img1,img2)
 #validate_disparity(img2,img1)
 
@@ -285,8 +339,15 @@ def validate_disparity(img1,img2):
 #disp2 = block_matching_9(img1,img2)
 
 ##DISPARITY WITH DYNAMIC PROGRAMMING
-disp3 = dynamic_disp(img2,img1)
+#disp3 = dynamic_disp(img2,img1)
 
 ##MSE CALCULATION. COMPARE WITH THE PROVIDED IMAGES
 
-#mse = computeMSE(disp1,disp3)
+#mse1 = computeMSE(disp1,ground_img1)
+#mse2 = computeMSE(disp1,ground_img2)
+
+#mse3 = computeMSE(disp2,ground_img1)
+#mse4 = computeMSE(disp2,ground_img2)
+
+#mse5 = computeMSE(disp3,ground_img1)
+#mse6 = computeMSE(disp3,ground_img2)
