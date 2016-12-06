@@ -224,67 +224,71 @@ def dynamic_disp(img1,img2):
 	sd = 20 #search distance
 	for i in range(rows):
 		for j in range(columns):
-			img1_values = img1[i][j:j+sd]
-			img2_values ] img2[i][j:j+sd]
-			lcs_values = lcs(img1_values,img2_values,result)
-			if(len(img1[0] - j - 1 < 20):
-				j+= 20 #skip to next block to find the lcs.
-			else:
-				j+= len(img1[0] - j - 1
+			for k in range(columns/sd): #only repeat width/sd times. ie) if width = 200 and sd = 10 then repeat 20 times.
+				img1_values = img1[i][j:j+sd]
+				img2_values = img2[i][j:j+sd]
+				lcs_values = lcs(img1_values,img2_values) #this will return an array of lcs values(1D ARRAY)
+				#append the array values to result
+				
+				output_i = j
+				for l in range(len(lcs_values)): #len(lcs_values) differs for every row, because lcs for each time is different. but the search distance is 20, so that doesn't change.
+					#print lcs_values
+					result[i][output_i+l-1] = lcs_values[l] #lcs_values is 1D array
+			j+= 20 #skip to next block to find the lcs.
 				
 	#print img2_row #370
 	#print count
 	
-	#print result
-	
 	#showImage(np.uint(result))
-	#showImage(result)
+	showImage(result)
 
-def lcs(X, Y,result):
-	m = len(X) #length of col
+def lcs(X, Y):
+	m = len(X) #should be the length of sd
 	n = len(Y)
 	
-	L = [[0 for x in xrange(n+1)] for x in xrange(m+1)]
+	lcs_val = [[0 for x in xrange(n+1)] for x in xrange(m+1)]
  
     # Following steps build L[m+1][n+1] in bottom up fashion. Note
     # that L[i][j] contains length of LCS of X[0..i-1] and Y[0..j-1] 
 	for i in xrange(m+1):
 		for j in xrange(n+1):
 			if i == 0 or j == 0:
-				L[i][j] = 0
+				lcs_val[i][j] = 0
 			elif X[i-1] == Y[j-1]:
-				L[i][j] = L[i-1][j-1] + 1
+				lcs_val[i][j] = lcs_val[i-1][j-1] + 1
 			else:
-				L[i][j] = max(L[i-1][j], L[i][j-1])
+				lcs_val[i][j] = max(lcs_val[i-1][j], lcs_val[i][j-1])
  
-    # Following code is used to print LCS
-	index = L[m][n]
+	lcs_count = lcs_val[m][n] #LCS count value. not the actual values.
+	#print lcs_count
 	
-	# Create a character array to store the lcs string
-	lcs = [""] * (index+1)
-	lcs[index] = "\0"
+	#Array to store actual lcs values
+	lcs = [0] * (lcs_count+1) #the last index is always 0
 	
 	# Start from the right-most-bottom-most corner and
 	# one by one store characters in lcs[]
-	i = m
-	j = n
+	
+	i = m #length of sd = 20
+	j = n #length of sd
 	while i > 0 and j > 0:
 	
 		# If current character in X[] and Y are same, then
 		# current character is part of LCS
 		if X[i-1] == Y[j-1]:
-			lcs[index-1] = X[i-1]
+			lcs[lcs_count-1] = X[i-1]
 			i-=1
 			j-=1
-			index-=1
+			lcs_count-=1
 	
 		# If not same, then find the larger of two and
 		# go in the direction of larger value
-		elif L[i-1][j] > L[i][j-1]:
+		elif lcs_val[i-1][j] > lcs_val[i][j-1]:
 			i-=1
 		else:
 			j-=1
-
+	#print lcs #prints the lcs values in []
+	return lcs
+	
 def computeMSE(img1, img2):
 	rows = len(img1)
 	columns = len(img1[0])
@@ -315,7 +319,7 @@ def validate_disparity(img1,img2):
 #disp2 = block_matching_9(img1,img2)
 
 ##DISPARITY WITH DYNAMIC PROGRAMMING
-#disp3 = dynamic_disp(img2,img1)
+disp3 = dynamic_disp(img2,img1)
 
 ##MSE CALCULATION. COMPARE WITH THE PROVIDED IMAGES
 
