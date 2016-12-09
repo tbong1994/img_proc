@@ -115,13 +115,16 @@ def block_matching_3(img1,img2):
 					if(ssd < ssd_min): #found the matching block.
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
-						disparity_values[i][j] = dist
+						disparity_values[i][j] = abs(dist)
 					#if(ssd < ssd_min): #replace lowest ssd value.
 						#ssd_min = ssd
 				#ssd_values[i][j] = ssd_min
 				
-	showImage(disparity_values)
-	#showImage(np.uint(disparity_values))
+	##convert to uint.. before??
+	
+	print disparity_values
+	#showImage(disparity_values)
+	showImage(np.uint(disparity_values))
 	#print disparity_values
 	
 	return disparity_values
@@ -201,7 +204,7 @@ def block_matching_9(img1,img2):
 						disparity_values[i][j] = dist
 					
 	showImage(disparity_values)
-	showImage(np.uint(disparity_values))
+	#showImage(np.uint(disparity_values))
 	
 	return disparity_values
 
@@ -272,16 +275,14 @@ def lcs(X, Y):
 	j = n #length of sd
 	while i > 0 and j > 0:
 	
-		# If current character in X[] and Y are same, then
-		# current character is part of LCS
+		# If current value in X[] and Y[] are same, then LCS
 		if X[i-1] == Y[j-1]:
 			lcs[lcs_count-1] = X[i-1]
 			i-=1
 			j-=1
 			lcs_count-=1
 	
-		# If not same, then find the larger of two and
-		# go in the direction of larger value
+		# if different, then pick the longer string of two and go with the longer string
 		elif lcs_val[i-1][j] > lcs_val[i][j-1]:
 			i-=1
 		else:
@@ -312,14 +313,14 @@ def validate_disparity(img1,img2):
 
 ##DISPARITY WITH BLOCK 3X3
 
-#disp1 = block_matching_3(img1,img2)
+disp1 = block_matching_3(img1,img2)
 
 ##DISPARITY WITH BLOCK 9X9
 
 #disp2 = block_matching_9(img1,img2)
 
 ##DISPARITY WITH DYNAMIC PROGRAMMING
-disp3 = dynamic_disp(img2,img1)
+#disp3 = dynamic_disp(img2,img1)
 
 ##MSE CALCULATION. COMPARE WITH THE PROVIDED IMAGES
 
