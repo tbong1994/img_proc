@@ -60,11 +60,12 @@ def block_matching_3(img1,img2):
 	#print len(ssd_values)
 	#print len(ssd_values[0])
 	
-	disparity_values = np.zeros(shape = (row,col),dtype=np.float)#keep track of SSD values at that index.
+	disparity_values = np.zeros(shape = (row,col),dtype=np.uint8)#keep track of SSD values at that index.
 	dist = 0 #distance value of 2 pix
 	
 	for i in range(1, row-1): #3x3 only able from (1,1) and ends when (last-1,last-1)
 		for j in range(1, col-1):
+			#or you can just extract the block by doing arr[i-1:i+1][j-1:j+1]
 			block = np.array([(img1[i-1][j-1],img1[i-1][j],img1[i-1][j+1]),
 							(img1[i][j-1],img1[i][j],img1[i][j+1]),
 							(img1[i+1][j-1],img1[i+1][j],img1[i+1][j+1])])
@@ -115,7 +116,7 @@ def block_matching_3(img1,img2):
 					if(ssd < ssd_min): #found the matching block.
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
-						disparity_values[i][j] = abs(dist)
+						disparity_values[i][j] = np.uint(abs(dist))
 					#if(ssd < ssd_min): #replace lowest ssd value.
 						#ssd_min = ssd
 				#ssd_values[i][j] = ssd_min
@@ -123,8 +124,8 @@ def block_matching_3(img1,img2):
 	##convert to uint.. before??
 	
 	print disparity_values
-	#showImage(disparity_values)
-	showImage(np.uint(disparity_values))
+	showImage(disparity_values)
+	#showImage(np.uint(disparity_values))
 	#print disparity_values
 	
 	return disparity_values
@@ -138,7 +139,7 @@ def block_matching_9(img1,img2):
 	#print len(ssd_values)
 	#print len(ssd_values[0])
 	
-	disparity_values = np.zeros(shape = (row,col),dtype=np.float)#keep track of SSD values at that index.
+	disparity_values = np.zeros(shape = (row,col),dtype=np.uint8)#keep track of SSD values at that index.
 	dist = 0 #distance value of 2 pix
 	
 	for i in range(4,row-4): #9x9 only able from (4,4) and ends when (last-4,last-4)
@@ -175,7 +176,7 @@ def block_matching_9(img1,img2):
 					if(ssd < 100): #found the matching block.
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
-						disparity_values[i][j] = dist
+						disparity_values[i][j] = np.uint8(abs(dist))
 				#ssd_values[i][j] = ssd_min
 			if(col-1-j<30): 
 				for k in range(j-30, col-4):
@@ -189,7 +190,7 @@ def block_matching_9(img1,img2):
 					if(ssd < 100): #least SSD
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
-						disparity_values[i][j] = dist
+						disparity_values[i][j] = np.uint8(abs(dist))
 			else: #everywhere else
 				for k in range(j-30,j+30): #only calcaulte in the x direction.
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
@@ -201,7 +202,7 @@ def block_matching_9(img1,img2):
 					if(ssd < 100): #found the matching block.
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
-						disparity_values[i][j] = dist
+						disparity_values[i][j] = np.uint8(abs(dist))
 					
 	showImage(disparity_values)
 	#showImage(np.uint(disparity_values))
@@ -212,7 +213,7 @@ def dynamic_disp(img1,img2):
 	rows = len(img1)
 	columns = len(img1[0])
 	
-	result = np.zeros(shape = (rows,columns),dtype=np.float) #output array
+	result = np.zeros(shape = (rows,columns),dtype=np.uint8) #output array
 	out_row = 0 #output array index row
 	
 	##get the longest common subsequent between 2 images. occlusions are blank(0).? 
@@ -313,14 +314,14 @@ def validate_disparity(img1,img2):
 
 ##DISPARITY WITH BLOCK 3X3
 
-disp1 = block_matching_3(img1,img2)
+#disp1 = block_matching_3(img1,img2)
 
 ##DISPARITY WITH BLOCK 9X9
 
 #disp2 = block_matching_9(img1,img2)
 
 ##DISPARITY WITH DYNAMIC PROGRAMMING
-#disp3 = dynamic_disp(img2,img1)
+disp3 = dynamic_disp(img2,img1)
 
 ##MSE CALCULATION. COMPARE WITH THE PROVIDED IMAGES
 
