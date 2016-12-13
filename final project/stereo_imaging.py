@@ -71,7 +71,7 @@ def block_matching_3(img1,img2):
 	mse_normal = row*col
 	for i in range(1, row-1): #3x3 only able from (1,1) and ends when (last-1,last-1)
 		for j in range(1, col-1):
-			ssd_min = 1.0
+			ssd_min = 50.0
 			#or you can just extract the block by doing arr[i-1:i+1][j-1:j+1]
 			block = np.array([(img1[i-1][j-1],img1[i-1][j],img1[i-1][j+1]),
 							(img1[i][j-1],img1[i][j],img1[i][j+1]),
@@ -135,14 +135,12 @@ def block_matching_3(img1,img2):
 	
 	#print disparity_values
 	#print "%s%s" %('mse: ',mse)
-	#showImage(disparity_values)
+	showImage(disparity_values)
 	#showImage(np.uint(disparity_values))
 	#print disparity_values
 	print mse_1/mse_normal
 	print mse_5/mse_normal
 	return disparity_values
-
-
 
 def block_matching_9(img1,img2):
 	#3x3 block matching
@@ -154,7 +152,7 @@ def block_matching_9(img1,img2):
 	disparity_values = np.zeros(shape = (row,col),dtype=np.uint8)#keep track of SSD values at that index.
 	dist = 0 #distance value of 2 pix
 	
-	ssd_min = 15.0
+	ssd_min = 50.0
 	
 	mse_1 = 0.0
 	mse_5 = 0.0
@@ -227,7 +225,7 @@ def block_matching_9(img1,img2):
 						mse_1 += computeMSE(disparity_values[i][j],ground_img1[i][j])
 						mse_5 += computeMSE(disparity_values[i][j],ground_img5[i][j])
 					
-	#showImage(disparity_values)
+	showImage(disparity_values)
 	print mse_1/mse_normal
 	print mse_5/mse_normal
 	return disparity_values
@@ -258,16 +256,25 @@ def dynamic_disp(img1,img2):
 				#append the array values to result
 				
 				output_i = j
-				for l in range(len(lcs_values)): #len(lcs_values) differs for every row, because lcs for each time is different. but the search distance is 20, so that doesn't change.
+				##lcs_values contain 0 at the last index. Neglect that.
+				for l in range(len(lcs_values)-1): #len(lcs_values) differs for every row, because lcs for each time is different. but the search distance is 20, so that doesn't change.
 					#print lcs_values
-					result[i][output_i+l-1] = lcs_values[l] #lcs_values is 1D array
-			j+= 20 #skip to next block to find the lcs.
+					result[i][j+l] = lcs_values[l] #lcs_values is 1D array
+					output_i+=1
+					
+				if(len(lcs_values) < sd): #occlusion
+					for m in range(sd - len(lcs_values)):
+						result[i][output_i-1] = 20 #occlusion value
+					
+			j+= sd #skip to next block to find the lcs.
 				
 	#print img2_row #370
 	#print count
 	
 	#showImage(np.uint(result))
+	
 	showImage(result)
+	return result
 
 def lcs(X, Y):
 	m = len(X) #should be the length of sd
@@ -319,6 +326,21 @@ def computeMSE(compare, given):
 	result = math.pow(compare-given,2)
 	return result
 
+def mse_dynamic(result,compare):
+	row = len(result)
+	col = len(result[0])
+	mse = 0.0
+	mse_normal = row*col
+	for i in range(row):
+		for j in range(col):
+			if(result[i][j] ==0): #only calculate the mse for actual pixels, don't include the occlusions in calculating the mse.
+				continue
+			else:
+				mse += math.pow(result[i][j] - compare[i][j],2)
+	mse = mse/mse_normal
+	print mse
+	return mse
+	
 def validate_disparity(img1,img2):
 	stereo = cv2.StereoBM(cv2.STEREO_BM_BASIC_PRESET,ndisparities=16, SADWindowSize=15)
 	disparity = stereo.compute(img1,img2)
@@ -335,18 +357,10 @@ def validate_disparity(img1,img2):
 
 ##DISPARITY WITH BLOCK 9X9
 
-disp2 = block_matching_9(img1,img2)
+#disp2 = block_matching_9(img1,img2)
 
 ##DISPARITY WITH DYNAMIC PROGRAMMING
-#disp3 = dynamic_disp(img2,img1)
+disp3 = dynamic_disp(img2,img1)
+#dynamic_mse = mse_dynamic(disp3,ground_img1)
+#dynamic_mse = mse_dynamic(disp3,ground_img5)
 
-##MSE CALCULATION. COMPARE WITH THE PROVIDED IMAGES
-
-#mse1 = computeMSE(disp1,ground_img1)
-#mse2 = computeMSE(disp1,ground_img2)
-
-#mse3 = computeMSE(disp2,ground_img1)
-#mse4 = computeMSE(disp2,ground_img2)
-
-#mse5 = computeMSE(disp3,ground_img1)
-#mse6 = computeMSE(disp3,ground_img2)
