@@ -13,9 +13,12 @@ img1 = cv2.imread('view3.png',0) #middle
 img2 = cv2.imread('view5.png',0) #left most
 
 ground_img1 = cv2.imread('disp1.png',0) #compare disparity map result
-ground_img2 = cv2.imread('disp5.png',0)
+ground_img5 = cv2.imread('disp5.png',0)
 row = len(img2)
 col = len(img2[0])
+
+#print len(ground_img1) #370
+#print len(ground_img1[0]) #463
 
 #print row #370
 #print col #463
@@ -63,8 +66,12 @@ def block_matching_3(img1,img2):
 	disparity_values = np.zeros(shape = (row,col),dtype=np.uint8)#keep track of SSD values at that index.
 	dist = 0 #distance value of 2 pix
 	
+	mse_1 = 0.0 #mse for disp1
+	mse_5 = 0.0 #mse for disp5
+	mse_normal = row*col
 	for i in range(1, row-1): #3x3 only able from (1,1) and ends when (last-1,last-1)
 		for j in range(1, col-1):
+			ssd_min = 1.0
 			#or you can just extract the block by doing arr[i-1:i+1][j-1:j+1]
 			block = np.array([(img1[i-1][j-1],img1[i-1][j],img1[i-1][j+1]),
 							(img1[i][j-1],img1[i][j],img1[i][j+1]),
@@ -74,7 +81,6 @@ def block_matching_3(img1,img2):
 			##MAKE THIS FUNCTION WORK FOR BOTH IMAGES.. SO IT NEEDS TO ITERATE 20 PIXELS SUCCESSFULLY WHEREVER THE INDEX IS..
 			
 			if(j<50):
-				ssd_min = 100
 				for k in range(1,j+50): #j is close to the left most side.. iterate to the end of the left side and iterate 10 to the right.
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
 					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
@@ -82,13 +88,14 @@ def block_matching_3(img1,img2):
 					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 						
-					if(ssd < ssd_min): #found the matching block.
+					if(ssd <= ssd_min): #found the matching block.
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
-						disparity_values[i][j] = dist
+						disparity_values[i][j] = np.uint(abs(dist))
+						mse_1 += computeMSE(disparity_values[i][j],ground_img1[i][j])
+						mse_5 += computeMSE(disparity_values[i][j],ground_img5[i][j])
 			
 			if(col-1-j<50): #j is close to the right most side.. iterate to the end of the right side and iterate 10 to the left.
-				ssd_min = 100
 				for k in range(j-50, col-1):
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
 					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
@@ -96,16 +103,17 @@ def block_matching_3(img1,img2):
 					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 				
-					if(ssd < ssd_min): #found the matching block.
+					if(ssd <= ssd_min): #found the matching block.
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
-						disparity_values[i][j] = dist
+						disparity_values[i][j] = np.uint(abs(dist))
+						mse_1 += computeMSE(disparity_values[i][j],ground_img1[i][j])
+						mse_5 += computeMSE(disparity_values[i][j],ground_img5[i][j])
 					#if(ssd < ssd_min): #replace lowest ssd value.
 						#ssd_min = ssd
 				#ssd_values[i][j] = ssd_min
 			
 			else: #everywhere else. iterate 10 to the left and 10 to the right.
-				ssd_min = 100
 				for k in range(j-50,j+50): #only calcaulte in the x direction.
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
 					+math.pow(block[0][2]-img2[i-1][k+1],2) + math.pow(block[1][0]-img2[i][k-1],2)
@@ -113,21 +121,25 @@ def block_matching_3(img1,img2):
 					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 										
-					if(ssd < ssd_min): #found the matching block.
+					if(ssd <= ssd_min): #found the matching block.
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
 						disparity_values[i][j] = np.uint(abs(dist))
+						mse_1 += computeMSE(disparity_values[i][j],ground_img1[i][j])
+						mse_5 += computeMSE(disparity_values[i][j],ground_img5[i][j])
 					#if(ssd < ssd_min): #replace lowest ssd value.
 						#ssd_min = ssd
 				#ssd_values[i][j] = ssd_min
 				
 	##convert to uint.. before??
 	
-	print disparity_values
-	showImage(disparity_values)
+	#print disparity_values
+	#print "%s%s" %('mse: ',mse)
+	#showImage(disparity_values)
 	#showImage(np.uint(disparity_values))
 	#print disparity_values
-	
+	print mse_1/mse_normal
+	print mse_5/mse_normal
 	return disparity_values
 
 
@@ -142,6 +154,11 @@ def block_matching_9(img1,img2):
 	disparity_values = np.zeros(shape = (row,col),dtype=np.uint8)#keep track of SSD values at that index.
 	dist = 0 #distance value of 2 pix
 	
+	ssd_min = 15.0
+	
+	mse_1 = 0.0
+	mse_5 = 0.0
+	mse_normal = row*col
 	for i in range(4,row-4): #9x9 only able from (4,4) and ends when (last-4,last-4)
 		for j in range(4,col-4):
 			#set block 9x9
@@ -173,10 +190,12 @@ def block_matching_9(img1,img2):
 					#if(ssd < ssd_min): #replace lowest ssd value.
 						#ssd_min = ssd
 						
-					if(ssd < 100): #found the matching block.
+					if(ssd <= ssd_min): #found the matching block.
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
 						disparity_values[i][j] = np.uint8(abs(dist))
+						mse_1 += computeMSE(disparity_values[i][j],ground_img1[i][j])
+						mse_5 += computeMSE(disparity_values[i][j],ground_img5[i][j])
 				#ssd_values[i][j] = ssd_min
 			if(col-1-j<30): 
 				for k in range(j-30, col-4):
@@ -187,10 +206,12 @@ def block_matching_9(img1,img2):
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 				
 					
-					if(ssd < 100): #least SSD
+					if(ssd <= ssd_min): #least SSD
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
 						disparity_values[i][j] = np.uint8(abs(dist))
+						mse_1 += computeMSE(disparity_values[i][j],ground_img1[i][j])
+						mse_5 += computeMSE(disparity_values[i][j],ground_img5[i][j])
 			else: #everywhere else
 				for k in range(j-30,j+30): #only calcaulte in the x direction.
 					ssd = math.pow(block[0][0]-img2[i-1][k-1],2)+ math.pow(block[0][1]-img2[i-1][k],2)
@@ -199,14 +220,16 @@ def block_matching_9(img1,img2):
 					+math.pow(block[2][0]-img2[i+1][k-1],2) + math.pow(block[2][1]-img2[i+1][k],2)
 					+math.pow(block[2][2]-img2[i+1][k+1],2)
 										
-					if(ssd < 100): #found the matching block.
+					if(ssd <= ssd_min): #found the matching block.
 						#get the distance of pixels.
 						dist = j - k # j is x index of orig image, k is x index of 2nd image.
 						disparity_values[i][j] = np.uint8(abs(dist))
+						mse_1 += computeMSE(disparity_values[i][j],ground_img1[i][j])
+						mse_5 += computeMSE(disparity_values[i][j],ground_img5[i][j])
 					
-	showImage(disparity_values)
-	#showImage(np.uint(disparity_values))
-	
+	#showImage(disparity_values)
+	print mse_1/mse_normal
+	print mse_5/mse_normal
 	return disparity_values
 
 def dynamic_disp(img1,img2):
@@ -291,16 +314,10 @@ def lcs(X, Y):
 	#print lcs #prints the lcs values in []
 	return lcs
 	
-def computeMSE(img1, img2):
-	rows = len(img1)
-	columns = len(img1[0])
-	
-	res = 0.0
-	for i in range(rows):
-		for j in range(columns):
-			result = math.pow((img1[i][j] - img2[i][j]),2)
-			res += result
-	print res
+def computeMSE(compare, given):
+	result = 0.0
+	result = math.pow(compare-given,2)
+	return result
 
 def validate_disparity(img1,img2):
 	stereo = cv2.StereoBM(cv2.STEREO_BM_BASIC_PRESET,ndisparities=16, SADWindowSize=15)
@@ -318,10 +335,10 @@ def validate_disparity(img1,img2):
 
 ##DISPARITY WITH BLOCK 9X9
 
-#disp2 = block_matching_9(img1,img2)
+disp2 = block_matching_9(img1,img2)
 
 ##DISPARITY WITH DYNAMIC PROGRAMMING
-disp3 = dynamic_disp(img2,img1)
+#disp3 = dynamic_disp(img2,img1)
 
 ##MSE CALCULATION. COMPARE WITH THE PROVIDED IMAGES
 
