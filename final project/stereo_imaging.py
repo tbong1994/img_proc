@@ -353,14 +353,14 @@ def validate_disparity(img1,img2):
 
 ##DISPARITY WITH BLOCK 3X3
 
-#disp1 = block_matching_3(img1,img2)
+#disp1 = block_matching_3(img2,img1)
 
 ##DISPARITY WITH BLOCK 9X9
 
-#disp2 = block_matching_9(img1,img2)
+#disp2 = block_matching_9(img2,img1)
 
 ##DISPARITY WITH DYNAMIC PROGRAMMING
 disp3 = dynamic_disp(img2,img1)
-#dynamic_mse = mse_dynamic(disp3,ground_img1)
-#dynamic_mse = mse_dynamic(disp3,ground_img5)
+dynamic_mse = mse_dynamic(disp3,ground_img1)
+dynamic_mse = mse_dynamic(disp3,ground_img5)
 
